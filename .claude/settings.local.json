@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp -r old_FE new_FE)",
+      "Bash(cd /Users/kartikey/Desktop/scale-up-app-main/new_FE && npm install 2>&1 | tail -5)",
+      "Bash(npm install:*)",
+      "Bash(npx next:*)",
+      "Bash(npx tsc:*)",
+      "Bash(curl -s http://localhost:3002/assess | head -5 && curl -s http://localhost:3002/example | head -5)",
+      "Bash(lsof -ti:3002 | xargs kill -9 2>/dev/null; echo \"Server stopped\")",
+      "Bash(lsof -ti:3002 2>/dev/null | xargs kill -9 2>/dev/null; echo \"cleaned\")",
+      "Bash(sleep 4 && curl -s http://localhost:3002/assess 2>/dev/null | grep -c 'Quick start\\\\|What are you scaling\\\\|How big are you going\\\\|LivePreview\\\\|Live Risk Preview' || echo \"0 matches\")",
+      "Bash(curl -s http://localhost:3002/example 2>/dev/null | grep -c 'Risk\\\\|bottleneck\\\\|Oxygen\\\\|Mixing' || echo \"0 matches\")"
+    ]
+  }
+}

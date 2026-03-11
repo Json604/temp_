@@ -1,0 +1,638 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ═══════════════════════════════════════
+   CSS CUSTOM PROPERTIES — LIGHT / DARK
+   ═══════════════════════════════════════ */
+
+:root,
+.light {
+  /* Surface */
+  --bg-base: #f5f6fa;
+  --bg-elevated: #ffffff;
+  --bg-sunken: #edeef3;
+
+  /* Glass panels */
+  --glass-bg: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.65) 50%, rgba(255,255,255,0.55) 100%);
+  --glass-border: rgba(0, 0, 0, 0.07);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.05);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glass-bg-sm: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.6) 100%);
+  --glass-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --glass-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+
+  /* Borders */
+  --border-primary: rgba(0, 0, 0, 0.08);
+  --border-secondary: rgba(0, 0, 0, 0.05);
+  --border-hover: rgba(0, 0, 0, 0.12);
+
+  /* Text */
+  --text-heading: #1a1a2e;
+  --text-primary: #2a2a42;
+  --text-secondary: #5a5a78;
+  --text-tertiary: #8a8aa4;
+  --text-muted: #a0a0b8;
+
+  /* Input */
+  --input-bg: rgba(0, 0, 0, 0.025);
+  --input-border: rgba(0, 0, 0, 0.1);
+  --input-text: #1a1a2e;
+  --input-placeholder: rgba(0, 0, 0, 0.28);
+  --input-focus-bg: rgba(255, 255, 255, 0.9);
+  --input-focus-ring: rgba(59, 130, 246, 0.12);
+  --input-focus-border: rgba(59, 130, 246, 0.4);
+
+  /* Select dropdown */
+  --select-option-bg: #ffffff;
+  --select-option-text: #1a1a2e;
+  --select-chevron: %23555570;
+
+  /* Buttons */
+  --btn-primary-bg: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(139, 92, 246, 0.08));
+  --btn-primary-border: rgba(59, 130, 246, 0.2);
+  --btn-primary-text: #2a2a42;
+  --btn-primary-hover-border: rgba(59, 130, 246, 0.35);
+  --btn-primary-hover-shadow: 0 0 24px rgba(59, 130, 246, 0.1), 0 4px 16px rgba(0, 0, 0, 0.06);
+  --btn-toggle-bg: rgba(0, 0, 0, 0.02);
+  --btn-toggle-border: rgba(0, 0, 0, 0.06);
+  --btn-toggle-text: rgba(90, 90, 120, 0.8);
+  --btn-toggle-hover-bg: rgba(0, 0, 0, 0.04);
+  --btn-toggle-active-bg: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.06));
+  --btn-toggle-active-border: rgba(59, 130, 246, 0.25);
+  --btn-toggle-active-text: #2a2a42;
+
+  /* Toggle button */
+  --toggle-bg: rgba(0, 0, 0, 0.03);
+
+  /* Bars */
+  --bar-bg: rgba(255, 255, 255, 0.88);
+  --bar-border: rgba(0, 0, 0, 0.06);
+
+  /* Tables */
+  --table-th-color: rgba(90, 90, 120, 0.6);
+  --table-th-border: rgba(0, 0, 0, 0.08);
+  --table-td-border: rgba(0, 0, 0, 0.04);
+  --table-row-hover: rgba(0, 0, 0, 0.02);
+
+  /* Risk badges — slightly more saturated in light */
+  --risk-badge-low-bg: rgba(16, 185, 129, 0.1);
+  --risk-badge-low-text: #059669;
+  --risk-badge-low-border: rgba(16, 185, 129, 0.2);
+  --risk-badge-mod-bg: rgba(217, 119, 6, 0.1);
+  --risk-badge-mod-text: #b45309;
+  --risk-badge-mod-border: rgba(217, 119, 6, 0.2);
+  --risk-badge-high-bg: rgba(234, 88, 12, 0.1);
+  --risk-badge-high-text: #c2410c;
+  --risk-badge-high-border: rgba(234, 88, 12, 0.2);
+  --risk-badge-crit-bg: rgba(220, 38, 38, 0.1);
+  --risk-badge-crit-text: #dc2626;
+  --risk-badge-crit-border: rgba(220, 38, 38, 0.2);
+
+  /* Glow (very subtle in light) */
+  --glow-low: 0 0 16px rgba(16, 185, 129, 0.06);
+  --glow-moderate: 0 0 16px rgba(217, 119, 6, 0.06);
+  --glow-high: 0 0 16px rgba(234, 88, 12, 0.06);
+  --glow-critical: 0 0 16px rgba(220, 38, 38, 0.06);
+
+  /* Accent */
+  --accent-focus: rgba(59, 130, 246, 0.4);
+  --accent-focus-ring: rgba(59, 130, 246, 0.1);
+  --accent-glow: rgba(59, 130, 246, 0.08);
+
+  /* Selection */
+  --selection-bg: rgba(59, 130, 246, 0.15);
+  --selection-text: #1a1a2e;
+
+  /* Gradient text */
+  --text-grad-start: #2a2a42;
+  --text-grad-end: #6a6a8a;
+  --text-grad-accent-start: #3b82f6;
+  --text-grad-accent-end: #8b5cf6;
+
+  /* Scrollbar */
+  --scrollbar-thumb: rgba(0, 0, 0, 0.12);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.2);
+
+  /* Section spotlight */
+  --section-focused-border: rgba(59, 130, 246, 0.12);
+  --section-focused-shadow: 0 8px 32px rgba(0,0,0,0.06), 0 0 20px rgba(59,130,246,0.04);
+
+  /* Range slider */
+  --range-track: rgba(0, 0, 0, 0.06);
+  --range-thumb-border: rgba(0, 0, 0, 0.1);
+  --range-thumb-shadow: 0 0 6px rgba(59, 130, 246, 0.25);
+
+  /* Ambient */
+  --ambient-accent: rgba(59, 130, 246, 0.04);
+  --ambient-warm: rgba(139, 92, 246, 0.03);
+
+  /* Domain card inner */
+  --card-inner-light: rgba(255, 255, 255, 0.96);
+  --card-inner-dark: rgba(248, 249, 252, 0.98);
+}
+
+.dark {
+  /* Surface */
+  --bg-base: #0a0a0f;
+  --bg-elevated: #111119;
+  --bg-sunken: #08080d;
+
+  /* Glass panels */
+  --glass-bg: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 50%, rgba(255,255,255,0.005) 100%);
+  --glass-border: rgba(255, 255, 255, 0.02);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --glass-bg-sm: linear-gradient(135deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.01) 100%);
+  --glass-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --glass-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  /* Borders */
+  --border-primary: rgba(255, 255, 255, 0.06);
+  --border-secondary: rgba(255, 255, 255, 0.04);
+  --border-hover: rgba(255, 255, 255, 0.1);
+
+  /* Text */
+  --text-heading: #e0e0ea;
+  --text-primary: #c8c8d8;
+  --text-secondary: #9898b0;
+  --text-tertiary: #686888;
+  --text-muted: #505074;
+
+  /* Input */
+  --input-bg: rgba(255, 255, 255, 0.03);
+  --input-border: rgba(255, 255, 255, 0.08);
+  --input-text: #e0e0ea;
+  --input-placeholder: rgba(192, 192, 208, 0.35);
+  --input-focus-bg: rgba(255, 255, 255, 0.05);
+  --input-focus-ring: rgba(125, 211, 252, 0.08);
+  --input-focus-border: rgba(125, 211, 252, 0.4);
+
+  /* Select dropdown */
+  --select-option-bg: #16161f;
+  --select-option-text: #e0e0ea;
+  --select-chevron: %239898b0;
+
+  /* Buttons */
+  --btn-primary-bg: linear-gradient(135deg, rgba(125, 211, 252, 0.15), rgba(167, 139, 250, 0.1));
+  --btn-primary-border: rgba(125, 211, 252, 0.25);
+  --btn-primary-text: #e0e0ea;
+  --btn-primary-hover-border: rgba(125, 211, 252, 0.4);
+  --btn-primary-hover-shadow: 0 0 24px rgba(125, 211, 252, 0.12), 0 4px 16px rgba(0, 0, 0, 0.2);
+  --btn-toggle-bg: rgba(255, 255, 255, 0.03);
+  --btn-toggle-border: rgba(255, 255, 255, 0.06);
+  --btn-toggle-text: rgba(192, 192, 208, 0.7);
+  --btn-toggle-hover-bg: rgba(255, 255, 255, 0.05);
+  --btn-toggle-active-bg: linear-gradient(135deg, rgba(125, 211, 252, 0.12), rgba(167, 139, 250, 0.08));
+  --btn-toggle-active-border: rgba(125, 211, 252, 0.3);
+  --btn-toggle-active-text: #e0e0ea;
+
+  /* Toggle button */
+  --toggle-bg: rgba(255, 255, 255, 0.04);
+
+  /* Bars */
+  --bar-bg: rgba(10, 10, 15, 0.8);
+  --bar-border: rgba(255, 255, 255, 0.06);
+
+  /* Tables */
+  --table-th-color: rgba(192, 192, 208, 0.5);
+  --table-th-border: rgba(255, 255, 255, 0.06);
+  --table-td-border: rgba(255, 255, 255, 0.03);
+  --table-row-hover: rgba(255, 255, 255, 0.02);
+
+  /* Risk badges */
+  --risk-badge-low-bg: rgba(52, 211, 153, 0.12);
+  --risk-badge-low-text: #34d399;
+  --risk-badge-low-border: rgba(52, 211, 153, 0.2);
+  --risk-badge-mod-bg: rgba(251, 191, 36, 0.12);
+  --risk-badge-mod-text: #fbbf24;
+  --risk-badge-mod-border: rgba(251, 191, 36, 0.2);
+  --risk-badge-high-bg: rgba(251, 146, 60, 0.12);
+  --risk-badge-high-text: #fb923c;
+  --risk-badge-high-border: rgba(251, 146, 60, 0.2);
+  --risk-badge-crit-bg: rgba(248, 113, 113, 0.12);
+  --risk-badge-crit-text: #f87171;
+  --risk-badge-crit-border: rgba(248, 113, 113, 0.2);
+
+  /* Glow */
+  --glow-low: 0 0 20px rgba(52, 211, 153, 0.08), inset 0 0 20px rgba(52, 211, 153, 0.03);
+  --glow-moderate: 0 0 20px rgba(251, 191, 36, 0.08), inset 0 0 20px rgba(251, 191, 36, 0.03);
+  --glow-high: 0 0 20px rgba(251, 146, 60, 0.08), inset 0 0 20px rgba(251, 146, 60, 0.03);
+  --glow-critical: 0 0 20px rgba(248, 113, 113, 0.1), inset 0 0 20px rgba(248, 113, 113, 0.04);
+
+  /* Accent */
+  --accent-focus: rgba(125, 211, 252, 0.4);
+  --accent-focus-ring: rgba(125, 211, 252, 0.08);
+  --accent-glow: rgba(125, 211, 252, 0.06);
+
+  /* Selection */
+  --selection-bg: rgba(125, 211, 252, 0.2);
+  --selection-text: #e0e0ea;
+
+  /* Gradient text */
+  --text-grad-start: #e0e0ea;
+  --text-grad-end: #9898b0;
+  --text-grad-accent-start: #7dd3fc;
+  --text-grad-accent-end: #a78bfa;
+
+  /* Scrollbar */
+  --scrollbar-thumb: rgba(192, 192, 208, 0.15);
+  --scrollbar-thumb-hover: rgba(192, 192, 208, 0.25);
+
+  /* Section spotlight */
+  --section-focused-border: rgba(125, 211, 252, 0.15);
+  --section-focused-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 24px rgba(125,211,252,0.04), inset 0 1px 0 rgba(255,255,255,0.06);
+
+  /* Range slider */
+  --range-track: rgba(255, 255, 255, 0.06);
+  --range-thumb-border: rgba(255, 255, 255, 0.15);
+  --range-thumb-shadow: 0 0 8px rgba(125, 211, 252, 0.3);
+
+  /* Ambient */
+  --ambient-accent: rgba(125, 211, 252, 0.02);
+  --ambient-warm: rgba(167, 139, 250, 0.015);
+
+  /* Domain card inner */
+  --card-inner-light: rgba(16, 16, 25, 0.97);
+  --card-inner-dark: rgba(13, 13, 20, 0.99);
+}
+
+@layer base {
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply font-sans;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+
+  /* Remove number input spinners */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  /* Selection colour */
+  ::selection {
+    background: var(--selection-bg);
+    color: var(--selection-text);
+  }
+}
+
+@layer components {
+  /* ═══════════════════════════════════════
+     LIQUID GLASS CARD SYSTEM
+     ═══════════════════════════════════════ */
+
+  .glass-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    backdrop-filter: blur(20px) saturate(1.2);
+    -webkit-backdrop-filter: blur(20px) saturate(1.2);
+    box-shadow: var(--glass-shadow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-panel:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--glass-shadow-hover);
+  }
+
+  .glass-panel-sm {
+    background: var(--glass-bg-sm);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--glass-shadow-sm);
+  }
+
+  .glass-input {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    color: var(--input-text);
+    transition: all 0.2s ease;
+  }
+
+  .glass-input:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px var(--input-focus-ring), 0 0 20px var(--accent-glow);
+    background: var(--input-focus-bg);
+  }
+
+  .glass-input::placeholder {
+    color: var(--input-placeholder);
+  }
+
+  .glass-input:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .glass-select {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    color: var(--input-text);
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='var(--select-chevron)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+
+  .glass-select:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px var(--input-focus-ring);
+  }
+
+  .glass-select option {
+    background: var(--select-option-bg);
+    color: var(--select-option-text);
+  }
+
+  /* ═══════════════════════════════════════
+     BUTTONS
+     ═══════════════════════════════════════ */
+
+  .btn-primary {
+    background: var(--btn-primary-bg);
+    border: 1px solid var(--btn-primary-border);
+    color: var(--btn-primary-text);
+    border-radius: 12px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--accent-focus-ring), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    border-color: var(--btn-primary-hover-border);
+    box-shadow: var(--btn-primary-hover-shadow);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:hover::before {
+    opacity: 1;
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-toggle {
+    background: var(--btn-toggle-bg);
+    border: 1px solid var(--btn-toggle-border);
+    color: var(--btn-toggle-text);
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .btn-toggle:hover {
+    background: var(--btn-toggle-hover-bg);
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+  }
+
+  .btn-toggle.active {
+    background: var(--btn-toggle-active-bg);
+    border-color: var(--btn-toggle-active-border);
+    color: var(--btn-toggle-active-text);
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+
+  /* ═══════════════════════════════════════
+     RISK BADGE SYSTEM
+     ═══════════════════════════════════════ */
+
+  .risk-badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: capitalize;
+  }
+
+  .risk-badge-low {
+    background: var(--risk-badge-low-bg);
+    color: var(--risk-badge-low-text);
+    border: 1px solid var(--risk-badge-low-border);
+  }
+
+  .risk-badge-moderate {
+    background: var(--risk-badge-mod-bg);
+    color: var(--risk-badge-mod-text);
+    border: 1px solid var(--risk-badge-mod-border);
+  }
+
+  .risk-badge-high {
+    background: var(--risk-badge-high-bg);
+    color: var(--risk-badge-high-text);
+    border: 1px solid var(--risk-badge-high-border);
+  }
+
+  .risk-badge-critical {
+    background: var(--risk-badge-crit-bg);
+    color: var(--risk-badge-crit-text);
+    border: 1px solid var(--risk-badge-crit-border);
+  }
+
+  /* ═══════════════════════════════════════
+     GLOW EFFECTS
+     ═══════════════════════════════════════ */
+
+  .glow-line {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(125, 211, 252, 0.3),
+      rgba(167, 139, 250, 0.2),
+      transparent
+    );
+  }
+
+  .risk-glow-low {
+    box-shadow: var(--glow-low);
+  }
+
+  .risk-glow-moderate {
+    box-shadow: var(--glow-moderate);
+  }
+
+  .risk-glow-high {
+    box-shadow: var(--glow-high);
+  }
+
+  .risk-glow-critical {
+    box-shadow: var(--glow-critical);
+  }
+
+  /* ═══════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════ */
+
+  .text-gradient {
+    background: linear-gradient(135deg, var(--text-grad-start) 0%, var(--text-grad-end) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-accent {
+    background: linear-gradient(135deg, var(--text-grad-accent-start) 0%, var(--text-grad-accent-end) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ═══════════════════════════════════════
+     DATA TABLES
+     ═══════════════════════════════════════ */
+
+  .data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .data-table thead th {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--table-th-color);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--table-th-border);
+  }
+
+  .data-table tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--table-td-border);
+    font-size: 13px;
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--table-row-hover);
+  }
+
+  .data-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* ═══════════════════════════════════════
+     SECTION SPOTLIGHT MODE
+     ═══════════════════════════════════════ */
+
+  .section-focused {
+    border-color: var(--section-focused-border);
+    box-shadow: var(--section-focused-shadow);
+  }
+
+  .section-dimmed {
+    opacity: 0.65;
+    filter: brightness(0.92);
+  }
+
+  .section-dimmed:hover {
+    opacity: 0.85;
+    filter: brightness(0.96);
+  }
+
+  /* ═══════════════════════════════════════
+     ORGANISM ACCENT THEMING
+     ═══════════════════════════════════════ */
+
+  .organism-bacteria .section-focused {
+    border-color: rgba(251, 146, 60, 0.12);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06), 0 0 20px rgba(251, 146, 60, 0.03);
+  }
+
+  .organism-yeast .section-focused {
+    border-color: rgba(167, 139, 250, 0.15);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06), 0 0 20px rgba(167, 139, 250, 0.04);
+  }
+
+  /* ═══════════════════════════════════════
+     RANGE SLIDER STYLING
+     ═══════════════════════════════════════ */
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: var(--range-track);
+    border-radius: 3px;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7dd3fc, #a78bfa);
+    border: 2px solid var(--range-thumb-border);
+    cursor: pointer;
+    box-shadow: var(--range-thumb-shadow);
+    transition: box-shadow 0.2s ease;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 16px rgba(125, 211, 252, 0.5);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7dd3fc, #a78bfa);
+    border: 2px solid var(--range-thumb-border);
+    cursor: pointer;
+    box-shadow: var(--range-thumb-shadow);
+  }
+}
