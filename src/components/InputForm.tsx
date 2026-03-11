@@ -657,23 +657,8 @@ export default function InputForm({ onStateChange }: InputFormProps) {
         results,
       });
 
-      const storedEmail = localStorage.getItem("lemnisca_work_email");
-      if (storedEmail) {
-        fetch("/api/save-assessment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: storedEmail,
-            inputs: processInputs,
-            results,
-          }),
-        })
-          .then((r) => r.json())
-          .then((data) => {
-            if (data.id) localStorage.setItem("lemnisca_last_assessment_id", data.id);
-          })
-          .catch((err) => console.error("Failed to save assessment:", err));
-      }
+      // Clear previous assessment ID so the results page saves this as a new record
+      localStorage.removeItem("lemnisca_last_assessment_id");
 
       setShowAnalyzing(true);
     },

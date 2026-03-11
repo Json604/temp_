@@ -1,14 +1,20 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import Link from "next/link";
 import InputForm from "@/components/InputForm";
 import type { FormState } from "@/components/InputForm";
 import LivePreview from "@/components/LivePreview";
-import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeProvider";
+import { STORAGE_KEY } from "@/components/EmailGateModal";
 
 export default function AssessPage() {
   const [formState, setFormState] = useState<FormState | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem(STORAGE_KEY));
+  }, []);
 
   const handleStateChange = useCallback((state: FormState) => {
     setFormState(state);
@@ -37,12 +43,14 @@ export default function AssessPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Link
-              href="/dashboard"
-              className="text-sm text-silver-500 hover:text-accent transition-colors"
-            >
-              Dashboard
-            </Link>
+            {isLoggedIn && (
+              <Link
+                href="/dashboard"
+                className="text-sm text-silver-500 hover:text-accent transition-colors"
+              >
+                Dashboard
+              </Link>
+            )}
             <ThemeToggle />
           </div>
         </div>

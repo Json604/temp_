@@ -8,7 +8,7 @@ const STORAGE_KEY = "lemnisca_work_email";
 
 type AuthMode = "login" | "signup";
 
-export default function EmailGateModal({ onClose }: { onClose: () => void }) {
+export default function EmailGateModal({ onClose, onSuccess }: { onClose: () => void; onSuccess?: () => void }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<AuthMode>("login");
@@ -59,14 +59,19 @@ export default function EmailGateModal({ onClose }: { onClose: () => void }) {
         }
 
         localStorage.setItem(STORAGE_KEY, email.trim().toLowerCase());
-        router.push("/assess");
+
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          router.push("/assess");
+        }
       } catch (err) {
         console.error("Auth error:", err);
         setError("Connection failed. Please try again.");
         setSubmitting(false);
       }
     },
-    [email, password, mode, router]
+    [email, password, mode, router, onSuccess]
   );
 
   const clearError = () => {
@@ -75,7 +80,7 @@ export default function EmailGateModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-[60] flex items-center justify-center"
       onClick={onClose}
     >
       {/* Backdrop */}

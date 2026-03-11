@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import EmailGateModal, { STORAGE_KEY } from "@/components/EmailGateModal";
+import { STORAGE_KEY } from "@/components/EmailGateModal";
 import { ThemeToggle } from "@/components/ThemeProvider";
 
 const RISK_DOMAINS = [
@@ -57,7 +57,6 @@ const RISK_DOMAINS = [
 ];
 
 export default function LandingPage() {
-  const [showModal, setShowModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
@@ -66,11 +65,7 @@ export default function LandingPage() {
   }, []);
 
   const handleAssessClick = () => {
-    if (typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY)) {
-      router.push("/assess");
-      return;
-    }
-    setShowModal(true);
+    router.push("/assess");
   };
 
   return (
@@ -180,7 +175,6 @@ export default function LandingPage() {
         </footer>
       </main>
 
-      {showModal && <EmailGateModal onClose={() => setShowModal(false)} />}
     </>
   );
 }

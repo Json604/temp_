@@ -73,6 +73,98 @@ function getHighestRisk(results: AssessmentSummary["results"]): string {
   return "low";
 }
 
+/* ── Skeleton components ── */
+
+function SkeletonPulse({ className }: { className?: string }) {
+  return (
+    <div
+      className={`relative rounded overflow-hidden bg-silver-800/30 dark:bg-white/[0.05] ${className ?? ""}`}
+    >
+      <div className="absolute inset-0 skeleton-shimmer" />
+    </div>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <main className="min-h-screen relative" style={{ background: "var(--bg-base)" }}>
+      {/* Ambient */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 right-[30%] w-[500px] h-[400px] blur-[120px] rounded-full" style={{ background: "var(--ambient-accent)" }} />
+      </div>
+
+      {/* Top bar skeleton */}
+      <div className="relative z-10 border-b px-6 py-3 flex items-center justify-between" style={{ background: "var(--bar-bg)", backdropFilter: "blur(20px)", borderColor: "var(--bar-border)" }}>
+        <div className="flex items-center gap-3">
+          <SkeletonPulse className="w-16 h-4" />
+          <span className="w-px h-4 bg-black/[0.04] dark:bg-white/[0.06]" />
+          <SkeletonPulse className="w-20 h-4" />
+        </div>
+        <div className="flex items-center gap-3">
+          <SkeletonPulse className="w-24 h-4" />
+          <SkeletonPulse className="w-8 h-8 rounded-full" />
+        </div>
+      </div>
+
+      <div className="relative z-10 max-w-4xl mx-auto px-6 py-8 space-y-8">
+        {/* Profile card skeleton */}
+        <div className="glass-panel p-6">
+          <div className="flex items-start justify-between">
+            <div className="space-y-2">
+              <SkeletonPulse className="w-40 h-6" />
+              <SkeletonPulse className="w-52 h-4" />
+            </div>
+            <SkeletonPulse className="w-16 h-4" />
+          </div>
+          <div className="mt-5 flex gap-6">
+            <div className="space-y-2">
+              <SkeletonPulse className="w-20 h-3" />
+              <SkeletonPulse className="w-10 h-8" />
+            </div>
+            <div className="space-y-2">
+              <SkeletonPulse className="w-20 h-3" />
+              <SkeletonPulse className="w-28 h-5" />
+            </div>
+          </div>
+        </div>
+
+        {/* Assessment history skeleton */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <SkeletonPulse className="w-36 h-4" />
+            <SkeletonPulse className="w-24 h-3" />
+          </div>
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="glass-panel p-5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <SkeletonPulse className="w-2.5 h-2.5 rounded-full" />
+                    <div className="space-y-1.5">
+                      <SkeletonPulse className="w-44 h-4" />
+                      <SkeletonPulse className="w-60 h-3" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="hidden sm:flex items-center gap-1.5">
+                      {[1, 2, 3, 4, 5].map((d) => (
+                        <SkeletonPulse key={d} className="w-1.5 h-1.5 rounded-full" />
+                      ))}
+                    </div>
+                    <SkeletonPulse className="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+/* ── Main page ── */
+
 export default function DashboardPage() {
   const router = useRouter();
   const [email, setEmail] = useState<string | null>(null);
@@ -126,14 +218,7 @@ export default function DashboardPage() {
   };
 
   if (loading) {
-    return (
-      <main className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg-base)" }}>
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-6 h-6 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-          <p className="text-silver-500 text-sm">Loading dashboard&hellip;</p>
-        </div>
-      </main>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
@@ -203,7 +288,7 @@ export default function DashboardPage() {
                       month: "short",
                       year: "numeric",
                     })
-                  : "—"}
+                  : "\u2014"}
               </p>
             </div>
           </div>
