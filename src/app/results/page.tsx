@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getAssessment, type StoredAssessment } from "@/lib/store";
+import { getAssessment, setAssessment, type StoredAssessment } from "@/lib/store";
+import { runAssessment } from "@/lib/engine";
 import ResultsDashboard from "@/components/ResultsDashboard";
 
 export default function ResultsPage() {
@@ -11,13 +12,42 @@ export default function ResultsPage() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const a = getAssessment();
-    if (!a) {
-      router.replace("/assess");
+    // 1. Try memory store first (normal flow)
+    const memData = getAssessment();
+    if (memData) {
+      setData(memData);
+      setLoaded(true);
       return;
     }
-    setData(a);
-    setLoaded(true);
+
+    // 2. Fall back to DB via last saved assessment ID (page refresh)
+    const assessmentId = localStorage.getItem("lemnisca_last_assessment_id");
+    if (assessmentId) {
+      fetch(`/api/assessments/${assessmentId}`)
+        .then((r) => {
+          if (!r.ok) throw new Error("Not found");
+          return r.json();
+        })
+        .then((dbRecord) => {
+          // Re-run the engine to get derived parameters (not stored in DB)
+          const results = runAssessment(dbRecord.inputs);
+          const restored: StoredAssessment = {
+            inputs: dbRecord.inputs,
+            derived: results.derived,
+            results,
+          };
+          setAssessment(restored);
+          setData(restored);
+          setLoaded(true);
+        })
+        .catch(() => {
+          router.replace("/assess");
+        });
+      return;
+    }
+
+    // 3. No data anywhere — redirect to assess
+    router.replace("/assess");
   }, [router]);
 
   if (!loaded || !data) {

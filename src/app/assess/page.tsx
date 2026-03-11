@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import InputForm from "@/components/InputForm";
 import type { FormState } from "@/components/InputForm";
 import LivePreview from "@/components/LivePreview";
+import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeProvider";
 
 export default function AssessPage() {
@@ -35,7 +36,15 @@ export default function AssessPage() {
               Enter your lab-scale fermentation parameters. Your risk profile builds in real time.
             </p>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard"
+              className="text-sm text-silver-500 hover:text-accent transition-colors"
+            >
+              Dashboard
+            </Link>
+            <ThemeToggle />
+          </div>
         </div>
 
         {/* Split layout: Form (left) + Live Preview (right) */}

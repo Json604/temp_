@@ -9,9 +9,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
+    const normalisedEmail = email.toLowerCase();
+    const domain = normalisedEmail.split("@")[1] ?? "unknown";
+
+    // Verify user exists (must have signed up via /api/auth first)
+    const user = await prisma.user.findUnique({
+      where: { email: normalisedEmail },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 401 });
+    }
+
     const assessment = await prisma.assessment.create({
       data: {
-        user_email: email.toLowerCase(),
+        user_email: normalisedEmail,
         inputs,
         results,
       },

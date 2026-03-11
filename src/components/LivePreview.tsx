@@ -283,9 +283,9 @@ export default function LivePreview({ formState }: LivePreviewProps) {
             style={{
               width: `${confidence.level === "high_confidence" ? 100 : confidence.level === "reliable" ? 66 : 33}%`,
               background: confidence.level === "high_confidence"
-                ? "linear-gradient(90deg, #34d399, #67e8f9)"
+                ? "linear-gradient(90deg, #34d399, #5bbaa8)"
                 : confidence.level === "reliable"
-                  ? "linear-gradient(90deg, #7dd3fc, #a78bfa)"
+                  ? "linear-gradient(90deg, #e2a052, #5bbaa8)"
                   : "linear-gradient(90deg, #fbbf24, #fb923c)",
             }}
           />
@@ -301,9 +301,9 @@ export default function LivePreview({ formState }: LivePreviewProps) {
             <div className="flex flex-col items-center">
               <div className="relative">
                 <svg width="28" height="40" viewBox="0 0 28 40" fill="none">
-                  <rect x="4" y="8" width="20" height="28" rx="3" stroke="rgba(125,211,252,0.3)" strokeWidth="1.5" fill="rgba(125,211,252,0.04)" />
-                  <rect x="8" y="4" width="12" height="6" rx="1" stroke="rgba(125,211,252,0.2)" strokeWidth="1" fill="none" />
-                  <line x1="4" y1="20" x2="24" y2="20" stroke="rgba(125,211,252,0.15)" strokeWidth="1" strokeDasharray="2 2" />
+                  <rect x="4" y="8" width="20" height="28" rx="3" stroke="rgba(226,160,82,0.3)" strokeWidth="1.5" fill="rgba(226,160,82,0.04)" />
+                  <rect x="8" y="4" width="12" height="6" rx="1" stroke="rgba(226,160,82,0.2)" strokeWidth="1" fill="none" />
+                  <line x1="4" y1="20" x2="24" y2="20" stroke="rgba(226,160,82,0.15)" strokeWidth="1" strokeDasharray="2 2" />
                 </svg>
               </div>
               <span className="text-[10px] text-silver-500 mt-1 font-mono">
@@ -315,7 +315,7 @@ export default function LivePreview({ formState }: LivePreviewProps) {
             {/* Arrow */}
             <div className="flex flex-col items-center pb-6">
               <svg width="32" height="12" viewBox="0 0 32 12" fill="none">
-                <path d="M0 6h28m0 0l-4-4m4 4l-4 4" stroke="rgba(167,139,250,0.4)" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M0 6h28m0 0l-4-4m4 4l-4 4" stroke="rgba(74,158,142,0.4)" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
               <span className="text-[11px] font-mono text-accent-warm font-medium mt-0.5">
                 {scaleRatio.toLocaleString("en-GB", { maximumFractionDigits: 0 })}&times;
@@ -326,9 +326,9 @@ export default function LivePreview({ formState }: LivePreviewProps) {
             <div className="flex flex-col items-center">
               <div className="relative">
                 <svg width="44" height="60" viewBox="0 0 44 60" fill="none">
-                  <rect x="4" y="8" width="36" height="48" rx="4" stroke="rgba(167,139,250,0.3)" strokeWidth="1.5" fill="rgba(167,139,250,0.04)" />
-                  <rect x="12" y="2" width="20" height="8" rx="2" stroke="rgba(167,139,250,0.2)" strokeWidth="1" fill="none" />
-                  <line x1="4" y1="32" x2="40" y2="32" stroke="rgba(167,139,250,0.15)" strokeWidth="1" strokeDasharray="2 2" />
+                  <rect x="4" y="8" width="36" height="48" rx="4" stroke="rgba(74,158,142,0.3)" strokeWidth="1.5" fill="rgba(74,158,142,0.04)" />
+                  <rect x="12" y="2" width="20" height="8" rx="2" stroke="rgba(74,158,142,0.2)" strokeWidth="1" fill="none" />
+                  <line x1="4" y1="32" x2="40" y2="32" stroke="rgba(74,158,142,0.15)" strokeWidth="1" strokeDasharray="2 2" />
                 </svg>
               </div>
               <span className="text-[10px] text-silver-500 mt-1 font-mono">

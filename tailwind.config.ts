@@ -34,8 +34,8 @@ const config: Config = {
         // Accent — works in both themes
         accent: {
           DEFAULT: "var(--text-grad-accent-start)",
-          warm: "#a78bfa",
-          cool: "#67e8f9",
+          warm: "#5bbaa8",
+          cool: "#e2a052",
         },
         // Risk colours — accessible in both modes
         risk: {
@@ -49,15 +49,16 @@ const config: Config = {
         teal: "#0D7377",
       },
       fontFamily: {
-        sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['"JetBrains Mono"', '"SF Mono"', '"Fira Code"', 'monospace'],
+        sans: ['"DM Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+        mono: ['"IBM Plex Mono"', '"SF Mono"', '"Fira Code"', 'monospace'],
       },
       boxShadow: {
         'glass': '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
         'glass-sm': '0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.04)',
         'glass-lg': '0 16px 64px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
-        'glow': '0 0 24px rgba(125,211,252,0.15)',
-        'glow-accent': '0 0 32px rgba(125,211,252,0.2)',
+        'glow': '0 0 24px rgba(226,160,82,0.15)',
+        'glow-accent': '0 0 32px rgba(226,160,82,0.2)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out',

@@ -414,23 +414,23 @@ function OtrDetail({ otr, derived, inputs, results }: {
           <thead>
             <tr className="text-[11px] text-silver-600 border-b border-black/[0.06] dark:border-white/[0.06]">
               <th className="text-left py-1.5">Scenario</th>
-              <th className="text-right py-1.5">P/V (W/m\u00B3)</th>
-              <th className="text-right py-1.5">kLa (h\u207B\u00B9)</th>
+              <th className="text-right py-1.5">P/V (W/m³)</th>
+              <th className="text-right py-1.5">kLa (h⁻¹)</th>
             </tr>
           </thead>
           <tbody>
             <tr className="border-b border-black/[0.04] dark:border-white/[0.03]">
-              <td className="py-1.5 text-silver-400">Conservative (0.5\u00D7)</td>
+              <td className="py-1.5 text-silver-400">Conservative (0.5×)</td>
               <td className="text-right font-mono text-silver-200">{fmt(otr.pv_conservative)}</td>
               <td className="text-right font-mono text-silver-200">{fmt(otr.kla_target_conservative)}</td>
             </tr>
             <tr className="border-b border-black/[0.04] dark:border-white/[0.03]">
-              <td className="py-1.5 text-silver-400">Moderate (1.0\u00D7)</td>
+              <td className="py-1.5 text-silver-400">Moderate (1.0×)</td>
               <td className="text-right font-mono text-silver-200">{fmt(otr.pv_moderate)}</td>
               <td className="text-right font-mono text-silver-200">{fmt(otr.kla_target_moderate)}</td>
             </tr>
             <tr className="border-b border-black/[0.04] dark:border-white/[0.03]">
-              <td className="py-1.5 text-silver-400">Aggressive (2.0\u00D7)</td>
+              <td className="py-1.5 text-silver-400">Aggressive (2.0×)</td>
               <td className="text-right font-mono text-silver-200">{fmt(otr.pv_aggressive)}</td>
               <td className="text-right font-mono text-silver-200">{fmt(otr.kla_target_aggressive)}</td>
             </tr>
@@ -485,7 +485,7 @@ function MixingDetail({ mixing, derived, inputs, results }: {
       </div>
       {inputs.process_type === "fed_batch" && mixing.da != null && (
         <div>
-          <h4 className="text-[11px] font-semibold text-silver-500 uppercase tracking-[0.08em] mb-1">Damk\u00F6hler Number</h4>
+          <h4 className="text-[11px] font-semibold text-silver-500 uppercase tracking-[0.08em] mb-1">Damköhler Number</h4>
           <table className="w-full text-sm">
             <tbody>
               <Row label="Da = \u03B8_mix / \u03C4_feed" value={fmt(mixing.da, 3)} />
@@ -978,6 +978,12 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
               Back to inputs
             </button>
           )}
+          <Link
+            href="/dashboard"
+            className="text-sm text-silver-500 hover:text-accent transition-colors"
+          >
+            Dashboard
+          </Link>
           <ThemeToggle />
         </div>
       </div>
@@ -1015,25 +1021,25 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
               Scale ratio: <strong className="text-silver-100 font-mono">{fmt(scaleRatio, 0)}&times;</strong>
             </span>
           </div>
-        </div>
 
-        {/* ===== SECTION 2: Bottleneck Callout ===== */}
-        {bottleneck && (
-          <div className="animate-fade-in flex items-start gap-4 py-4 pl-5 pr-2" style={{ borderLeft: `3px solid ${compositeInfo.colour}` }}>
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.1em] mb-2" style={{ color: compositeInfo.colour }}>
-                Primary Bottleneck
-              </p>
-              <p className="text-base font-semibold text-silver-100 leading-snug mb-3">
-                {bottleneck.statement}
-              </p>
-              <p className="text-[10px] font-semibold text-silver-500 uppercase tracking-[0.08em] mb-1">
-                What would change this?
-              </p>
-              <p className="text-sm text-silver-400 leading-relaxed">{bottleneck.what_would_change}</p>
+          {/* Bottleneck callout */}
+          {bottleneck && (
+            <div className="animate-fade-in mt-8 w-full flex items-start gap-4 py-4 pl-5 pr-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.1em] mb-2" style={{ color: compositeInfo.colour }}>
+                  Primary Bottleneck
+                </p>
+                <p className="text-base font-semibold text-silver-100 leading-snug mb-3">
+                  {bottleneck.statement}
+                </p>
+                <p className="text-[10px] font-semibold text-silver-500 uppercase tracking-[0.08em] mb-1">
+                  What would change this?
+                </p>
+                <p className="text-sm text-silver-400 leading-relaxed">{bottleneck.what_would_change}</p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* ===== SECTION 3: Domain Cards Row ===== */}
         <div>
@@ -1137,13 +1143,13 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
                   </thead>
                   <tbody className="font-mono text-silver-200">
                     <tr>
-                      <td className="font-sans text-silver-400">kLa achievable (h\u207B\u00B9)</td>
+                      <td className="font-sans text-silver-400">kLa achievable (h⁻¹)</td>
                       <td className="text-right">{fmt(otr.kla_lab)}</td>
                       <td className="text-right">{fmt(pilot.klaAchievable)}</td>
                       <td className="text-right">{fmt(adjustedKla ?? otr.kla_target_moderate)}</td>
                     </tr>
                     <tr>
-                      <td className="font-sans text-silver-400">kLa required (h\u207B\u00B9)</td>
+                      <td className="font-sans text-silver-400">kLa required (h⁻¹)</td>
                       <td className="text-right">{fmt(otr.kla_required)}</td>
                       <td className="text-right">{fmt(otr.kla_required)}</td>
                       <td className="text-right">{fmt(otr.kla_required)}</td>
@@ -1169,7 +1175,7 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
                       <td className="text-right">{fmt(shear.tip_speed)}</td>
                     </tr>
                     <tr>
-                      <td className="font-sans text-silver-400">pCO\u2082 bottom (bar)</td>
+                      <td className="font-sans text-silver-400">pCO₂ bottom (bar)</td>
                       <td className="text-right text-silver-600">&mdash;</td>
                       <td className="text-right">
                         {pilot.pco2Bottom != null ? fmt(pilot.pco2Bottom, 3) : <span className="text-silver-600">&mdash;</span>}
@@ -1179,7 +1185,7 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
                       </td>
                     </tr>
                     <tr>
-                      <td className="font-sans text-silver-400">Metabolic heat (kW/m\u00B3)</td>
+                      <td className="font-sans text-silver-400">Metabolic heat (kW/m³)</td>
                       <td className="text-right">{fmt(heatKwM3Lab, 2)}</td>
                       <td className="text-right">{fmt(pilot.heatKwM3, 2)}</td>
                       <td className="text-right">{fmt(heatKwM3Target, 2)}</td>
@@ -1188,7 +1194,7 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
                 </table>
               </div>
 
-              {/* P/V Scenario selector */}
+              {/* P/V Scenario selector — commented out, redundant with OTR detail card
               <div className="glass-panel-sm p-5">
                 <h4 className="text-[11px] font-semibold text-silver-500 uppercase tracking-[0.08em] mb-3">
                   Adjust target P/V ratio relative to lab scale
@@ -1208,9 +1214,10 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
                   ))}
                 </div>
                 <p className="text-[11px] text-silver-600 mt-3">
-                  P/V at target: <span className="font-mono text-silver-400">{fmt(derived.pv_lab * pvMultiplier)} W/m\u00B3</span> &rarr; kLa achievable: <span className="font-mono text-silver-400">{fmt(adjustedKla ?? otr.kla_target_moderate)} h\u207B\u00B9</span>
+                  P/V at target: <span className="font-mono text-silver-400">{fmt(derived.pv_lab * pvMultiplier)} W/m³</span> &rarr; kLa achievable: <span className="font-mono text-silver-400">{fmt(adjustedKla ?? otr.kla_target_moderate)} h⁻¹</span>
                 </p>
               </div>
+              */}
             </div>
           )}
         </div>

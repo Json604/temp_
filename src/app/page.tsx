@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import EmailGateModal, { STORAGE_KEY } from "@/components/EmailGateModal";
@@ -58,7 +58,12 @@ const RISK_DOMAINS = [
 
 export default function LandingPage() {
   const [showModal, setShowModal] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem(STORAGE_KEY));
+  }, []);
 
   const handleAssessClick = () => {
     if (typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY)) {
@@ -93,10 +98,14 @@ export default function LandingPage() {
             Lemnisca
           </span>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-risk-low animate-pulse-slow" />
-              <span className="text-[11px] text-silver-500">System Online</span>
-            </div>
+            {isLoggedIn && (
+              <Link
+                href="/dashboard"
+                className="text-sm text-silver-500 hover:text-accent transition-colors"
+              >
+                Dashboard
+              </Link>
+            )}
             <ThemeToggle />
           </div>
         </header>
@@ -107,7 +116,7 @@ export default function LandingPage() {
             <p className="text-center text-[11px] font-medium uppercase tracking-[0.2em] text-accent/60 mb-6">
               Fermentation Scale-Up Risk Predictor
             </p>
-            <h1 className="max-w-3xl text-center text-5xl font-semibold leading-[1.15] text-gradient">
+            <h1 className="max-w-3xl text-center text-5xl font-serif leading-[1.15] text-gradient">
               See where your fermentation process
               is vulnerable at scale.
             </h1>

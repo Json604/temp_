@@ -2,7 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/* View transition for animated theme toggle */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;400;500;600;700;1,9..40,400&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 /* ═══════════════════════════════════════
    CSS CUSTOM PROPERTIES — LIGHT / DARK
@@ -43,8 +50,8 @@
   --input-text: #1a1a2e;
   --input-placeholder: rgba(0, 0, 0, 0.28);
   --input-focus-bg: rgba(255, 255, 255, 0.9);
-  --input-focus-ring: rgba(59, 130, 246, 0.12);
-  --input-focus-border: rgba(59, 130, 246, 0.4);
+  --input-focus-ring: rgba(196, 145, 68, 0.12);
+  --input-focus-border: rgba(196, 145, 68, 0.4);
 
   /* Select dropdown */
   --select-option-bg: #ffffff;
@@ -52,17 +59,17 @@
   --select-chevron: %23555570;
 
   /* Buttons */
-  --btn-primary-bg: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(139, 92, 246, 0.08));
-  --btn-primary-border: rgba(59, 130, 246, 0.2);
+  --btn-primary-bg: linear-gradient(135deg, rgba(196, 145, 68, 0.12), rgba(168, 120, 50, 0.08));
+  --btn-primary-border: rgba(196, 145, 68, 0.25);
   --btn-primary-text: #2a2a42;
-  --btn-primary-hover-border: rgba(59, 130, 246, 0.35);
-  --btn-primary-hover-shadow: 0 0 24px rgba(59, 130, 246, 0.1), 0 4px 16px rgba(0, 0, 0, 0.06);
+  --btn-primary-hover-border: rgba(196, 145, 68, 0.4);
+  --btn-primary-hover-shadow: 0 0 24px rgba(196, 145, 68, 0.1), 0 4px 16px rgba(0, 0, 0, 0.06);
   --btn-toggle-bg: rgba(0, 0, 0, 0.02);
   --btn-toggle-border: rgba(0, 0, 0, 0.06);
   --btn-toggle-text: rgba(90, 90, 120, 0.8);
   --btn-toggle-hover-bg: rgba(0, 0, 0, 0.04);
-  --btn-toggle-active-bg: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.06));
-  --btn-toggle-active-border: rgba(59, 130, 246, 0.25);
+  --btn-toggle-active-bg: linear-gradient(135deg, rgba(196, 145, 68, 0.1), rgba(74, 158, 142, 0.06));
+  --btn-toggle-active-border: rgba(196, 145, 68, 0.25);
   --btn-toggle-active-text: #2a2a42;
 
   /* Toggle button */
@@ -99,36 +106,36 @@
   --glow-critical: 0 0 16px rgba(220, 38, 38, 0.06);
 
   /* Accent */
-  --accent-focus: rgba(59, 130, 246, 0.4);
-  --accent-focus-ring: rgba(59, 130, 246, 0.1);
-  --accent-glow: rgba(59, 130, 246, 0.08);
+  --accent-focus: rgba(196, 145, 68, 0.4);
+  --accent-focus-ring: rgba(196, 145, 68, 0.1);
+  --accent-glow: rgba(196, 145, 68, 0.08);
 
   /* Selection */
-  --selection-bg: rgba(59, 130, 246, 0.15);
+  --selection-bg: rgba(196, 145, 68, 0.15);
   --selection-text: #1a1a2e;
 
   /* Gradient text */
   --text-grad-start: #2a2a42;
   --text-grad-end: #6a6a8a;
-  --text-grad-accent-start: #3b82f6;
-  --text-grad-accent-end: #8b5cf6;
+  --text-grad-accent-start: #c49144;
+  --text-grad-accent-end: #4a9e8e;
 
   /* Scrollbar */
   --scrollbar-thumb: rgba(0, 0, 0, 0.12);
   --scrollbar-thumb-hover: rgba(0, 0, 0, 0.2);
 
   /* Section spotlight */
-  --section-focused-border: rgba(59, 130, 246, 0.12);
-  --section-focused-shadow: 0 8px 32px rgba(0,0,0,0.06), 0 0 20px rgba(59,130,246,0.04);
+  --section-focused-border: rgba(196, 145, 68, 0.12);
+  --section-focused-shadow: 0 8px 32px rgba(0,0,0,0.06), 0 0 20px rgba(196,145,68,0.04);
 
   /* Range slider */
   --range-track: rgba(0, 0, 0, 0.06);
   --range-thumb-border: rgba(0, 0, 0, 0.1);
-  --range-thumb-shadow: 0 0 6px rgba(59, 130, 246, 0.25);
+  --range-thumb-shadow: 0 0 6px rgba(196, 145, 68, 0.25);
 
   /* Ambient */
-  --ambient-accent: rgba(59, 130, 246, 0.04);
-  --ambient-warm: rgba(139, 92, 246, 0.03);
+  --ambient-accent: rgba(196, 145, 68, 0.04);
+  --ambient-warm: rgba(74, 158, 142, 0.03);
 
   /* Domain card inner */
   --card-inner-light: rgba(255, 255, 255, 0.96);
@@ -169,8 +176,8 @@
   --input-text: #e0e0ea;
   --input-placeholder: rgba(192, 192, 208, 0.35);
   --input-focus-bg: rgba(255, 255, 255, 0.05);
-  --input-focus-ring: rgba(125, 211, 252, 0.08);
-  --input-focus-border: rgba(125, 211, 252, 0.4);
+  --input-focus-ring: rgba(226, 160, 82, 0.1);
+  --input-focus-border: rgba(226, 160, 82, 0.4);
 
   /* Select dropdown */
   --select-option-bg: #16161f;
@@ -178,17 +185,17 @@
   --select-chevron: %239898b0;
 
   /* Buttons */
-  --btn-primary-bg: linear-gradient(135deg, rgba(125, 211, 252, 0.15), rgba(167, 139, 250, 0.1));
-  --btn-primary-border: rgba(125, 211, 252, 0.25);
+  --btn-primary-bg: linear-gradient(135deg, rgba(226, 160, 82, 0.15), rgba(74, 158, 142, 0.08));
+  --btn-primary-border: rgba(226, 160, 82, 0.25);
   --btn-primary-text: #e0e0ea;
-  --btn-primary-hover-border: rgba(125, 211, 252, 0.4);
-  --btn-primary-hover-shadow: 0 0 24px rgba(125, 211, 252, 0.12), 0 4px 16px rgba(0, 0, 0, 0.2);
+  --btn-primary-hover-border: rgba(226, 160, 82, 0.4);
+  --btn-primary-hover-shadow: 0 0 24px rgba(226, 160, 82, 0.12), 0 4px 16px rgba(0, 0, 0, 0.2);
   --btn-toggle-bg: rgba(255, 255, 255, 0.03);
   --btn-toggle-border: rgba(255, 255, 255, 0.06);
   --btn-toggle-text: rgba(192, 192, 208, 0.7);
   --btn-toggle-hover-bg: rgba(255, 255, 255, 0.05);
-  --btn-toggle-active-bg: linear-gradient(135deg, rgba(125, 211, 252, 0.12), rgba(167, 139, 250, 0.08));
-  --btn-toggle-active-border: rgba(125, 211, 252, 0.3);
+  --btn-toggle-active-bg: linear-gradient(135deg, rgba(226, 160, 82, 0.12), rgba(74, 158, 142, 0.08));
+  --btn-toggle-active-border: rgba(226, 160, 82, 0.3);
   --btn-toggle-active-text: #e0e0ea;
 
   /* Toggle button */
@@ -225,36 +232,36 @@
   --glow-critical: 0 0 20px rgba(248, 113, 113, 0.1), inset 0 0 20px rgba(248, 113, 113, 0.04);
 
   /* Accent */
-  --accent-focus: rgba(125, 211, 252, 0.4);
-  --accent-focus-ring: rgba(125, 211, 252, 0.08);
-  --accent-glow: rgba(125, 211, 252, 0.06);
+  --accent-focus: rgba(226, 160, 82, 0.4);
+  --accent-focus-ring: rgba(226, 160, 82, 0.1);
+  --accent-glow: rgba(226, 160, 82, 0.08);
 
   /* Selection */
-  --selection-bg: rgba(125, 211, 252, 0.2);
+  --selection-bg: rgba(226, 160, 82, 0.2);
   --selection-text: #e0e0ea;
 
   /* Gradient text */
   --text-grad-start: #e0e0ea;
   --text-grad-end: #9898b0;
-  --text-grad-accent-start: #7dd3fc;
-  --text-grad-accent-end: #a78bfa;
+  --text-grad-accent-start: #e2a052;
+  --text-grad-accent-end: #5bbaa8;
 
   /* Scrollbar */
   --scrollbar-thumb: rgba(192, 192, 208, 0.15);
   --scrollbar-thumb-hover: rgba(192, 192, 208, 0.25);
 
   /* Section spotlight */
-  --section-focused-border: rgba(125, 211, 252, 0.15);
-  --section-focused-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 24px rgba(125,211,252,0.04), inset 0 1px 0 rgba(255,255,255,0.06);
+  --section-focused-border: rgba(226, 160, 82, 0.15);
+  --section-focused-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 24px rgba(226,160,82,0.04), inset 0 1px 0 rgba(255,255,255,0.06);
 
   /* Range slider */
   --range-track: rgba(255, 255, 255, 0.06);
   --range-thumb-border: rgba(255, 255, 255, 0.15);
-  --range-thumb-shadow: 0 0 8px rgba(125, 211, 252, 0.3);
+  --range-thumb-shadow: 0 0 8px rgba(226, 160, 82, 0.3);
 
   /* Ambient */
-  --ambient-accent: rgba(125, 211, 252, 0.02);
-  --ambient-warm: rgba(167, 139, 250, 0.015);
+  --ambient-accent: rgba(226, 160, 82, 0.025);
+  --ambient-warm: rgba(74, 158, 142, 0.02);
 
   /* Domain card inner */
   --card-inner-light: rgba(16, 16, 25, 0.97);
@@ -489,8 +496,8 @@
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(125, 211, 252, 0.3),
-      rgba(167, 139, 250, 0.2),
+      rgba(226, 160, 82, 0.3),
+      rgba(226, 160, 82, 0.15),
       transparent
     );
   }
@@ -592,8 +599,8 @@
   }
 
   .organism-yeast .section-focused {
-    border-color: rgba(167, 139, 250, 0.15);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.06), 0 0 20px rgba(167, 139, 250, 0.04);
+    border-color: rgba(74, 158, 142, 0.15);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06), 0 0 20px rgba(74, 158, 142, 0.04);
   }
 
   /* ═══════════════════════════════════════
@@ -615,7 +622,7 @@
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #7dd3fc, #a78bfa);
+    background: linear-gradient(135deg, #e2a052, #5bbaa8);
     border: 2px solid var(--range-thumb-border);
     cursor: pointer;
     box-shadow: var(--range-thumb-shadow);
@@ -623,14 +630,14 @@
   }
 
   input[type="range"]::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 16px rgba(125, 211, 252, 0.5);
+    box-shadow: 0 0 16px rgba(226, 160, 82, 0.5);
   }
 
   input[type="range"]::-moz-range-thumb {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #7dd3fc, #a78bfa);
+    background: linear-gradient(135deg, #e2a052, #5bbaa8);
     border: 2px solid var(--range-thumb-border);
     cursor: pointer;
     box-shadow: var(--range-thumb-shadow);

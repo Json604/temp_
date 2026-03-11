@@ -21,6 +21,7 @@ import {
 } from "@/lib/constants";
 import { runAssessment } from "@/lib/engine";
 import { setAssessment } from "@/lib/store";
+import AnalyzingAnimation, { ANALYZING_DURATION_MS } from "@/components/AnalyzingAnimation";
 
 // --- Organism species options filtered by class ---
 
@@ -183,6 +184,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
   const [form, setForm] = useState<FormState>(INITIAL_STATE);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [showAnalyzing, setShowAnalyzing] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState<"forward" | "back">("forward");
   const stepContentRef = useRef<HTMLDivElement>(null);
@@ -665,13 +667,22 @@ export default function InputForm({ onStateChange }: InputFormProps) {
             inputs: processInputs,
             results,
           }),
-        }).catch((err) => console.error("Failed to save assessment:", err));
+        })
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.id) localStorage.setItem("lemnisca_last_assessment_id", data.id);
+          })
+          .catch((err) => console.error("Failed to save assessment:", err));
       }
 
-      router.push("/results");
+      setShowAnalyzing(true);
     },
-    [form, validate, steps, validateStep, ourEstimation, exhaustGasOur, softWarnings, router]
+    [form, validate, steps, validateStep, ourEstimation, exhaustGasOur, softWarnings]
   );
+
+  const handleAnalyzingComplete = useCallback(() => {
+    router.push("/results");
+  }, [router]);
 
   // --- Render helpers ---
 
@@ -701,6 +712,10 @@ export default function InputForm({ onStateChange }: InputFormProps) {
   // Current step info
   const activeStepDef = steps[currentStep];
 
+  if (showAnalyzing) {
+    return <AnalyzingAnimation onComplete={handleAnalyzingComplete} />;
+  }
+
   return (
     <form onSubmit={handleSubmit} noValidate className={`max-w-3xl mx-auto ${organismAccent}`}>
       {/* Step progress indicator */}
@@ -716,10 +731,10 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                 onClick={() => goToStep(i)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all duration-200 ${
                   isActive
-                    ? "bg-accent/[0.1] border border-accent/25 text-accent"
+                    ? "bg-accent/[0.1] text-accent"
                     : isCompleted
-                      ? "bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] text-silver-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] cursor-pointer"
-                      : "bg-transparent border border-transparent text-silver-600"
+                      ? "bg-black/[0.02] dark:bg-white/[0.03] text-silver-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] cursor-pointer"
+                      : "bg-transparent text-silver-600"
                 }`}
                 disabled={i > currentStep + 1}
               >
@@ -746,7 +761,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
             className="h-full rounded-full transition-all duration-500 ease-out"
             style={{
               width: `${((currentStep + 1) / totalSteps) * 100}%`,
-              background: "linear-gradient(90deg, #7dd3fc, #a78bfa)",
+              background: "linear-gradient(90deg, #e2a052, #5bbaa8)",
             }}
           />
         </div>
@@ -825,8 +840,8 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                             onClick={() => set("organism_species", s.value)}
                             className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all duration-200 ${
                               form.organism_species === s.value
-                                ? "border-accent/30 bg-accent/[0.06] shadow-glow"
-                                : "border-black/[0.06] dark:border-white/[0.06] bg-black/[0.01] dark:bg-white/[0.01] hover:border-black/[0.1] dark:hover:border-white/[0.12] hover:bg-black/[0.02] dark:hover:bg-white/[0.03]"
+                                ? "border-accent/20 bg-accent/[0.06] shadow-glow"
+                                : "border-black/[0.06] dark:border-white/[0.03] bg-black/[0.01] dark:bg-white/[0.01] hover:border-black/[0.1] dark:hover:border-white/[0.06] hover:bg-black/[0.02] dark:hover:bg-white/[0.03]"
                             }`}
                           >
                             <span className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold ${
@@ -846,8 +861,8 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                             </div>
                             {form.organism_species === s.value && (
                               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
-                                <circle cx="8" cy="8" r="7" stroke="rgba(125,211,252,0.4)" strokeWidth="1.5" />
-                                <path d="M5 8l2 2 4-4" stroke="#7dd3fc" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <circle cx="8" cy="8" r="7" stroke="rgba(226,160,82,0.4)" strokeWidth="1.5" />
+                                <path d="M5 8l2 2 4-4" stroke="#e2a052" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                               </svg>
                             )}
                           </button>
@@ -922,7 +937,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                     <div className="flex items-end gap-1.5 flex-shrink-0">
                       <div className="w-3 h-5 rounded-sm border border-accent/30 bg-accent/[0.06]" />
                       <svg width="16" height="8" viewBox="0 0 16 8" fill="none" className="mb-1">
-                        <path d="M0 4h12m0 0l-3-3m3 3l-3 3" stroke="rgba(167,139,250,0.5)" strokeWidth="1" strokeLinecap="round" />
+                        <path d="M0 4h12m0 0l-3-3m3 3l-3 3" stroke="rgba(74,158,142,0.5)" strokeWidth="1" strokeLinecap="round" />
                       </svg>
                       <div className="w-5 h-8 rounded-sm border border-accent-warm/30 bg-accent-warm/[0.06]" />
                     </div>
@@ -969,7 +984,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                         className={`flex flex-col items-center py-3.5 px-2 rounded-xl border text-sm transition-all duration-200 ${
                           form.impeller_type === imp.value
                             ? "bg-accent/[0.08] border-accent/30 text-silver-100 shadow-glow"
-                            : "bg-black/[0.02] dark:bg-white/[0.02] border-black/[0.06] dark:border-white/[0.06] text-silver-500 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] hover:border-black/[0.08] dark:hover:border-white/[0.1]"
+                            : "bg-black/[0.02] dark:bg-white/[0.02] border-black/[0.06] dark:border-white/[0.03] text-silver-500 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] hover:border-black/[0.08] dark:hover:border-white/[0.06]"
                         }`}
                       >
                         <span className="text-2xl mb-1">{imp.icon}</span>
@@ -1055,7 +1070,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                           className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all duration-200 ${
                             form.h_d_target === String(p)
                               ? "bg-accent/[0.1] border-accent/30 text-silver-100"
-                              : "bg-black/[0.02] dark:bg-white/[0.02] border-black/[0.06] dark:border-white/[0.06] text-silver-500 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
+                              : "bg-black/[0.02] dark:bg-white/[0.02] border-black/[0.06] dark:border-white/[0.03] text-silver-500 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
                           }`}
                         >
                           {p}
@@ -1087,7 +1102,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                         className={`w-11 h-11 rounded-xl border text-sm font-mono transition-all duration-200 ${
                           form.n_impellers === String(n)
                             ? "bg-accent/[0.1] border-accent/30 text-silver-100"
-                            : "bg-black/[0.02] dark:bg-white/[0.02] border-black/[0.06] dark:border-white/[0.06] text-silver-500 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
+                            : "bg-black/[0.02] dark:bg-white/[0.02] border-black/[0.06] dark:border-white/[0.03] text-silver-500 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
                         }`}
                       >
                         {n}
@@ -1115,7 +1130,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                       min={0}
                       step="any"
                     />
-                    <div className="flex border border-black/[0.06] dark:border-white/[0.06] rounded-xl overflow-hidden">
+                    <div className="flex border border-black/[0.06] dark:border-white/[0.03] rounded-xl overflow-hidden">
                       {(["g_L_CDW", "OD600"] as BiomassUnit[]).map((u) => (
                         <button
                           key={u}
@@ -1153,7 +1168,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                   <div className="space-y-2">
                     {/* Measured */}
                     <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
-                      form.our_mode === "measured" ? "border-accent/30 bg-accent/[0.04]" : "border-black/[0.06] dark:border-white/[0.06] hover:border-black/[0.08] dark:hover:border-white/[0.1] bg-black/[0.01] dark:bg-white/[0.01]"
+                      form.our_mode === "measured" ? "border-accent/30 bg-accent/[0.04]" : "border-black/[0.06] dark:border-white/[0.03] hover:border-black/[0.08] dark:hover:border-white/[0.06] bg-black/[0.01] dark:bg-white/[0.01]"
                     }`}>
                       <input type="radio" name="our_mode" value="measured" checked={form.our_mode === "measured"} onChange={() => set("our_mode", "measured")} className="mt-0.5 accent-accent" />
                       <div className="flex-1">
@@ -1170,7 +1185,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
 
                     {/* Estimate */}
                     <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
-                      form.our_mode === "estimate" ? "border-accent/30 bg-accent/[0.04]" : "border-black/[0.06] dark:border-white/[0.06] hover:border-black/[0.08] dark:hover:border-white/[0.1] bg-black/[0.01] dark:bg-white/[0.01]"
+                      form.our_mode === "estimate" ? "border-accent/30 bg-accent/[0.04]" : "border-black/[0.06] dark:border-white/[0.03] hover:border-black/[0.08] dark:hover:border-white/[0.06] bg-black/[0.01] dark:bg-white/[0.01]"
                     }`}>
                       <input type="radio" name="our_mode" value="estimate" checked={form.our_mode === "estimate"} onChange={() => set("our_mode", "estimate")} className="mt-0.5 accent-accent" />
                       <div className="flex-1">
@@ -1200,7 +1215,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
 
                     {/* Exhaust gas */}
                     <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
-                      form.our_mode === "exhaust_gas" ? "border-accent/30 bg-accent/[0.04]" : "border-black/[0.06] dark:border-white/[0.06] hover:border-black/[0.08] dark:hover:border-white/[0.1] bg-black/[0.01] dark:bg-white/[0.01]"
+                      form.our_mode === "exhaust_gas" ? "border-accent/30 bg-accent/[0.04]" : "border-black/[0.06] dark:border-white/[0.03] hover:border-black/[0.08] dark:hover:border-white/[0.06] bg-black/[0.01] dark:bg-white/[0.01]"
                     }`}>
                       <input type="radio" name="our_mode" value="exhaust_gas" checked={form.our_mode === "exhaust_gas"} onChange={() => set("our_mode", "exhaust_gas")} className="mt-0.5 accent-accent" />
                       <div className="flex-1">
@@ -1242,7 +1257,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                     DO setpoint (%)
                   </label>
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 relative">
+                    <div className="flex-[3] relative">
                       <input type="range" min={0} max={100} value={form.do_setpoint || 30} onChange={(e) => set("do_setpoint", e.target.value)} className="w-full accent-accent h-1.5" />
                       <div className="flex justify-between text-[9px] text-silver-700 mt-1 px-0.5">
                         <span>0%</span>
@@ -1250,7 +1265,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                         <span>100%</span>
                       </div>
                     </div>
-                    <input type="number" value={form.do_setpoint} onChange={(e) => set("do_setpoint", e.target.value)} className={inputCls("do_setpoint", "w-20")} min={0} max={100} />
+                    <input type="number" value={form.do_setpoint} onChange={(e) => set("do_setpoint", e.target.value)} className={inputCls("do_setpoint", "!w-20 flex-shrink-0")} min={0} max={100} />
                   </div>
                   {fieldError("do_setpoint")}
                 </div>
