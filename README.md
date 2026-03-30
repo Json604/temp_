@@ -23,7 +23,7 @@ Each domain produces a score: **Low**, **Moderate**, **High**, or **Critical**, 
 | Calculation engine | TypeScript, client-side (no server round-trip) |
 | Backend API | Express 5, TypeScript |
 | Database | PostgreSQL via Prisma ORM (with `@prisma/adapter-pg`) |
-| Authentication | Email/password with bcrypt (work email only) |
+| Authentication | Email/password with bcrypt + JWT bearer tokens |
 | PDF generation | `@react-pdf/renderer` |
 
 ## Project Structure
@@ -44,8 +44,8 @@ Each domain produces a score: **Low**, **Moderate**, **High**, or **Critical**, 
 │       │   ├── assessment.controller.ts
 │       │   └── user.controller.ts
 │       ├── services/
-│       │   ├── auth.service.ts       # Signup/login with bcrypt
-│       │   ├── assessment.service.ts # CRUD for assessments
+│       │   ├── auth.service.ts       # Signup/login with bcrypt + JWT issuance
+│       │   ├── assessment.service.ts # CRUD for assessments (ownership-verified)
 │       │   └── user.service.ts       # User profile lookup
 │       ├── routes/
 │       │   ├── auth.route.ts         # POST /api/auth
@@ -54,6 +54,7 @@ Each domain produces a score: **Low**, **Moderate**, **High**, or **Critical**, 
 │       ├── helpers/
 │       │   └── email-validation.ts   # Work email gating
 │       └── middlewares/
+│           ├── auth.middleware.ts     # JWT verification (requireAuth)
 │           └── error.middleware.ts
 │
 ├── frontend/                   # Next.js app
@@ -77,7 +78,7 @@ Each domain produces a score: **Low**, **Moderate**, **High**, or **Critical**, 
 │       │   ├── AnalyzingAnimation.tsx # Submission animation
 │       │   └── CollapsibleSection.tsx # Expandable detail sections
 │       └── lib/
-│           ├── api.ts          # Backend URL helper
+│           ├── api.ts          # Backend URL helper + JWT token management
 │           ├── store.ts        # Client-side state (sessionStorage-backed)
 │           ├── types/index.ts  # All TypeScript interfaces
 │           ├── constants/index.ts  # Organism defaults, thresholds, tables
@@ -112,6 +113,7 @@ DATABASE_URL=postgresql://user:password@host:5432/dbname?sslmode=require
 # Backend
 PORT=4000
 FRONTEND_URL=http://localhost:3000
+JWT_SECRET=your-secret-key-change-in-production
 
 # Frontend
 NEXT_PUBLIC_API_URL=http://localhost:4000
@@ -149,14 +151,14 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## API Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/api/auth` | Sign up or login (`{ email, password, action: "signup" \| "login" }`) |
-| `GET` | `/api/user?email=` | Fetch user profile and assessment count |
-| `GET` | `/api/assessments?email=` | List all assessments for a user (newest first) |
-| `GET` | `/api/assessments/:id` | Fetch a single assessment by UUID |
-| `POST` | `/api/assessments/save` | Save assessment (`{ email, inputs, results }`) |
-| `GET` | `/api/health` | Health check |
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `POST` | `/api/auth` | No | Sign up or login (`{ email, password, action }`) — returns JWT token |
+| `GET` | `/api/user` | Bearer | Fetch authenticated user's profile and assessment count |
+| `GET` | `/api/assessments` | Bearer | List all assessments for the authenticated user |
+| `GET` | `/api/assessments/:id` | Bearer | Fetch a single assessment (ownership verified) |
+| `POST` | `/api/assessments/save` | Bearer | Save assessment (`{ inputs, results }`) — email derived from token |
+| `GET` | `/api/health` | No | Health check |
 
 ## How the Calculation Engine Works
 
@@ -189,7 +191,9 @@ Assessment
 1. Users can run assessments **without** signing in — results are shown with a blurred overlay prompting sign-up.
 2. Sign-up requires a **work email** (personal providers like Gmail, Yahoo, Outlook are blocked).
 3. Passwords are hashed with **bcrypt** (12 salt rounds).
-4. Auth state is stored in `localStorage` (email key). There are no JWTs or session tokens — the email is used directly for API queries.
+4. On successful login/signup, the server issues a **JWT** (7-day expiry) signed with `JWT_SECRET`.
+5. The frontend stores the token in `localStorage` and sends it as `Authorization: Bearer <token>` on all protected API calls.
+6. All protected endpoints verify the token via `requireAuth` middleware — the user's email is derived from the token payload, never from client input.
 
 ## Theme System
 
@@ -218,9 +222,3 @@ Themes are controlled by CSS custom properties defined in `globals.css`, toggled
 | `build` | `next build` | Production build |
 | `start` | `next start` | Serve production build |
 
-## Conventions
-
-- **British English** for all user-facing text
-- Every hardcoded constant comes from `/docs/lemnisca_dev_spec.md`
-- Estimated values are visually distinct (italic, different colour)
-- No animations or congratulatory UI — professional instrument aesthetic
