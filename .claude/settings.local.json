@@ -40,7 +40,8 @@
       "Bash(rm -rf .playwright-mcp)",
       "mcp__playwright__browser_snapshot",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(grep -E \"\\\\.tsx$\")"
     ]
   }
 }
