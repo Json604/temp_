@@ -7,13 +7,19 @@ import type { FormState } from "@/components/InputForm";
 import LivePreview from "@/components/LivePreview";
 import { ThemeToggle } from "@/components/ThemeProvider";
 import { STORAGE_KEY } from "@/components/EmailGateModal";
+import { getFormDraft } from "@/lib/store";
 
 export default function AssessPage() {
   const [formState, setFormState] = useState<FormState | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [draft, setDraft] = useState<FormState | undefined>(undefined);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem(STORAGE_KEY));
+    const saved = getFormDraft<FormState>();
+    if (saved) setDraft(saved);
+    setReady(true);
   }, []);
 
   const handleStateChange = useCallback((state: FormState) => {
@@ -55,7 +61,7 @@ export default function AssessPage() {
         <div className="max-w-7xl mx-auto flex gap-6 items-start">
           {/* Form panel — scrollable */}
           <div className="flex-1 min-w-0">
-            <InputForm onStateChange={handleStateChange} />
+            {ready && <InputForm onStateChange={handleStateChange} initialValues={draft} />}
           </div>
 
           {/* Live preview panel — sticky */}

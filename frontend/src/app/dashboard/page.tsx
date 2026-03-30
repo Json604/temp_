@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeProvider";
-import { setAssessment } from "@/lib/store";
+import { setAssessment, setFormDraft, clearFormDraft } from "@/lib/store";
 import { runAssessment } from "@/lib/engine";
 import type { ProcessInputs } from "@/lib/types";
+import { INPUT_DEFAULTS } from "@/lib/constants";
 import { apiUrl } from "@/lib/api";
+import type { FormState } from "@/components/InputForm";
 
 const STORAGE_KEY = "lemnisca_work_email";
 
@@ -206,6 +208,38 @@ export default function DashboardPage() {
       results,
     });
     localStorage.setItem("lemnisca_last_assessment_id", assessment.id);
+
+    const inp = assessment.inputs;
+    const draft: FormState = {
+      organism_class: inp.organism_class,
+      organism_species: inp.organism_species,
+      process_type: inp.process_type,
+      v_lab: String(inp.v_lab),
+      v_target: String(inp.v_target),
+      vessel_model: inp.vessel_model ?? "",
+      h_d_lab: String(inp.h_d_lab),
+      h_d_target: String(inp.h_d_target),
+      n_impellers: String(inp.n_impellers),
+      n_impellers_overridden: false,
+      impeller_type: inp.impeller_type,
+      rpm: String(inp.rpm),
+      vvm: String(inp.vvm),
+      biomass: String(inp.biomass),
+      biomass_unit: inp.biomass_unit,
+      our_mode: inp.our_mode,
+      our_measured: inp.our_measured != null ? String(inp.our_measured) : "",
+      our_estimate_override: "",
+      o2_inlet: String(inp.o2_inlet ?? INPUT_DEFAULTS.o2_inlet),
+      o2_outlet: inp.o2_outlet != null ? String(inp.o2_outlet) : "",
+      gas_flow: inp.gas_flow != null ? String(inp.gas_flow) : "",
+      do_setpoint: String(inp.do_setpoint),
+      temperature: String(inp.temperature),
+      t_cw_inlet: String(inp.t_cw_inlet),
+      feed_frequency: inp.feed_frequency ?? "",
+      feed_interval_seconds: inp.feed_interval_seconds != null ? String(inp.feed_interval_seconds) : "",
+    };
+    setFormDraft(draft);
+
     router.push("/results");
   };
 
@@ -237,6 +271,7 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/assess"
+            onClick={() => clearFormDraft()}
             className="text-sm px-3 py-1.5 rounded-lg font-medium transition-all"
             style={{ color: "var(--text-primary)", border: "1px solid var(--border-primary)" }}
           >

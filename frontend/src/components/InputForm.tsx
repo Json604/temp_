@@ -20,7 +20,7 @@ import {
   IMPELLER_CONSTANTS,
 } from "@/lib/constants";
 import { runAssessment } from "@/lib/engine";
-import { setAssessment } from "@/lib/store";
+import { setAssessment, setFormDraft } from "@/lib/store";
 import AnalyzingAnimation, { ANALYZING_DURATION_MS } from "@/components/AnalyzingAnimation";
 
 // --- Organism species options filtered by class ---
@@ -283,11 +283,12 @@ function getInlineRangeError(key: keyof FormState, f: FormState): string | undef
 
 interface InputFormProps {
   onStateChange?: (state: FormState) => void;
+  initialValues?: FormState;
 }
 
-export default function InputForm({ onStateChange }: InputFormProps) {
+export default function InputForm({ onStateChange, initialValues }: InputFormProps) {
   const router = useRouter();
-  const [form, setForm] = useState<FormState>(INITIAL_STATE);
+  const [form, setForm] = useState<FormState>(initialValues ?? INITIAL_STATE);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [submitted, setSubmitted] = useState(false);
   const [showAnalyzing, setShowAnalyzing] = useState(false);
@@ -826,6 +827,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
       // Clear previous assessment ID so the results page saves this as a new record
       localStorage.removeItem("lemnisca_last_assessment_id");
 
+      setFormDraft(form);
       setShowAnalyzing(true);
     },
     [form, validate, steps, validateStep, ourEstimation, exhaustGasOur, softWarnings]

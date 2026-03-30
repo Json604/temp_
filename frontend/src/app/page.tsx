@@ -183,8 +183,7 @@ export default function LandingPage() {
           <div className="glow-line mb-4" />
           <p className="text-center text-[11px] text-silver-500 flex items-center justify-center gap-1.5">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3 h-3 opacity-60"><rect x="3" y="8" width="10" height="6" rx="1.5" /><path d="M5 8V5.5a3 3 0 016 0V8" /></svg>
-            Your process data is encrypted in transit and at rest, never shared,
-            and deletable on demand.
+            Your process data is encrypted in transit and at rest, never shared.
           </p>
         </footer>
       </main>
