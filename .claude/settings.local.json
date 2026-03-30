@@ -24,7 +24,17 @@
       "Bash(curl -s -X POST 'http://localhost:3000/api/log-email' \\\\\n  -H 'Content-Type: application/json' \\\\\n  -d '{\"email\":\"kartikey@lemnisca.bio\",\"domain\":\"lemnisca.bio\"}' 2>&1)",
       "Bash(curl -s -X POST 'http://localhost:3000/api/save-assessment' \\\\\n  -H 'Content-Type: application/json' \\\\\n  -d '{\"email\":\"kartikey@lemnisca.bio\",\"inputs\":{\"organism_class\":\"bacteria\",\"organism_species\":\"e_coli\",\"process_type\":\"batch\",\"v_lab\":5,\"v_target\":1000,\"impeller_type\":\"rushton\",\"rpm\":500,\"vvm\":1,\"biomass\":20,\"biomass_unit\":\"g_L_CDW\",\"our_mode\":\"estimate\",\"do_setpoint\":30,\"temperature\":37,\"t_cw_inlet\":12,\"h_d_lab\":1.2,\"h_d_target\":2,\"n_impellers\":1},\"results\":{\"otr\":{\"score\":\"high\"},\"mixing\":{\"score\":\"moderate\"},\"shear\":{\"score\":\"low\"},\"co2\":{\"score\":\"low\"},\"heat\":{\"score\":\"moderate\"}}}' 2>&1)",
       "Bash(curl -s 'http://localhost:3000/api/assessments?email=kartikey@lemnisca.bio' 2>&1 | head -100)",
-      "Bash(source .env && echo $DATABASE_URL | head -c 30)"
+      "Bash(source .env && echo $DATABASE_URL | head -c 30)",
+      "Bash(find . -name TODO* -o -name FIXME* -o -name WIP*)",
+      "Bash(/opt/homebrew/bin/npx @playwright/mcp@latest --help)",
+      "Bash(claude mcp:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_fill_form",
+      "Bash(find /Users/kartikey/Desktop/work_products/pushkar_scale-up-app-main/src -type f -not -path */node_modules/*)",
+      "Bash(find ~/Desktop/your_products/Raptor_backend -maxdepth 3 -type d ! -path */node_modules/* ! -path */.git/* ! -path */.next/*)",
+      "Bash(find ~/Desktop/your_products/Raptor_frontend -maxdepth 3 -type d ! -path */node_modules/* ! -path */.git/* ! -path */.next/*)"
     ]
   }
 }

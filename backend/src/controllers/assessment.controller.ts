@@ -1,0 +1,52 @@
+import { Request, Response } from "express";
+import * as assessmentService from "../services/assessment.service";
+
+export async function getAssessments(req: Request, res: Response) {
+  try {
+    const email = (req.query.email as string)?.toLowerCase();
+
+    if (!email) {
+      res.status(400).json({ error: "Missing email" });
+      return;
+    }
+
+    const assessments = await assessmentService.getAssessments(email);
+    res.json({ assessments });
+  } catch (error: any) {
+    console.error("Failed to fetch assessments:", error);
+    res.status(500).json({ error: "Internal error" });
+  }
+}
+
+export async function getAssessmentById(req: Request, res: Response) {
+  try {
+    const id = req.params.id as string;
+    const assessment = await assessmentService.getAssessmentById(id);
+    res.json(assessment);
+  } catch (error: any) {
+    if (error.status) {
+      res.status(error.status).json({ error: error.message });
+      return;
+    }
+    console.error("Failed to fetch assessment:", error);
+    res.status(500).json({ error: "Internal error" });
+  }
+}
+
+export async function saveAssessment(req: Request, res: Response) {
+  try {
+    const { email, inputs, results } = req.body;
+
+    if (!email || !inputs || !results) {
+      res.status(400).json({ error: "Missing fields" });
+      return;
+    }
+
+    const result = await assessmentService.saveAssessment(email, inputs, results);
+    res.json(result);
+  } catch (error: any) {
+    // Save failed — log silently, do not block the user
+    console.error("Failed to save assessment (non-blocking):", error);
+    res.json({ id: null });
+  }
+}
