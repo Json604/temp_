@@ -214,10 +214,6 @@ export default function InputForm({ onStateChange }: InputFormProps) {
     onStateChange?.(form);
   }, [form, onStateChange]);
 
-  // Scroll to top of step content on step change
-  useEffect(() => {
-    stepContentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [currentStep]);
 
   const set = useCallback(
     <K extends keyof FormState>(key: K, value: FormState[K]) => {
@@ -858,14 +854,20 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                             onClick={() => set("organism_species", s.value)}
                             className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all duration-200 ${
                               form.organism_species === s.value
-                                ? "border-accent/20 bg-accent/[0.06] shadow-glow"
-                                : "border-black/[0.06] dark:border-white/[0.03] bg-black/[0.01] dark:bg-white/[0.01] hover:border-black/[0.1] dark:hover:border-white/[0.06] hover:bg-black/[0.02] dark:hover:bg-white/[0.03]"
+                                ? "shadow-glow"
+                                : "border-black/[0.12] dark:border-white/[0.06] hover:border-black/[0.18] dark:hover:border-white/[0.1]"
                             }`}
+                            style={form.organism_species === s.value ? {
+                              background: "var(--btn-toggle-active-bg)",
+                              borderColor: "var(--btn-toggle-active-border)",
+                            } : {
+                              background: "var(--btn-toggle-bg)",
+                            }}
                           >
                             <span className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold ${
                               form.organism_species === s.value
                                 ? "bg-accent/[0.15] text-accent"
-                                : "bg-black/[0.03] dark:bg-white/[0.04] text-silver-500"
+                                : "bg-black/[0.05] dark:bg-white/[0.06] text-silver-400"
                             }`}>
                               {s.value.split("_").map(w => w[0].toUpperCase()).slice(0, 2).join("")}
                             </span>

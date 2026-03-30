@@ -20,7 +20,7 @@ function renderImpeller(
   const wrap = (children: React.ReactNode) => {
     if (!animated) return <g key={`imp-${index}`}>{children}</g>;
     return (
-      <g key={`imp-${index}`} style={{ transformOrigin: `${cx}px ${cy}px`, animation: `spin 2s linear infinite` }}>
+      <g key={`imp-${index}`} style={{ transformOrigin: `${cx}px ${cy}px`, animation: `bioreactor-spin 2s linear infinite` }}>
         {children}
       </g>
     );
@@ -88,6 +88,7 @@ export default function BioreactorDiagram({
   const svgW = tankD + pad * 2;
   const svgH = tankH + pad * 2 + 18;
   const scaleFactor = width / svgW;
+  const renderedHeight = svgH * scaleFactor;
 
   const wallL = pad;
   const wallR = pad + tankD;
@@ -132,15 +133,21 @@ export default function BioreactorDiagram({
     <div className="flex flex-col items-center">
       {animated && (
         <style>{`
-          @keyframes spin {
+          @keyframes bioreactor-spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
           }
         `}</style>
       )}
+      <div
+        style={{
+          height: renderedHeight,
+          transition: "height 500ms ease",
+        }}
+      >
       <svg
         width={width}
-        height={svgH * scaleFactor}
+        height={renderedHeight}
         viewBox={`0 0 ${svgW} ${svgH}`}
         style={{ overflow: "visible" }}
       >
@@ -194,20 +201,16 @@ export default function BioreactorDiagram({
         <line x1={wallL - 4} y1={wallTop} x2={wallL + 10} y2={wallTop} stroke="var(--text-heading)" strokeWidth="1.5" strokeLinecap="round" opacity="0.55" />
         <line x1={wallR - 10} y1={wallTop} x2={wallR + 4} y2={wallTop} stroke="var(--text-heading)" strokeWidth="1.5" strokeLinecap="round" opacity="0.55" />
 
-        {/* Baffles */}
-        <line x1={wallL + 4} y1={wallTop + 6} x2={wallL + 4} y2={wallBottom - 6} stroke="var(--text-heading)" strokeWidth="1" opacity="0.2" />
-        <line x1={wallR - 4} y1={wallTop + 6} x2={wallR - 4} y2={wallBottom - 6} stroke="var(--text-heading)" strokeWidth="1" opacity="0.2" />
-
         {/* Motor box */}
         <rect x={cx - 7} y={wallTop - 16} width={14} height={10} rx="2" fill="none" stroke="var(--text-heading)" strokeWidth="1.2" opacity="0.5" />
 
         {/* Shaft */}
         <line x1={cx} y1={wallTop - 6} x2={cx} y2={shaftBottom} stroke="var(--text-heading)" strokeWidth="1.4" opacity="0.6" />
 
-        {/* Impellers */}
+        {/* Impellers — use transform for smooth repositioning */}
         {impellerYs.map((y, i) => (
-          <g key={i} className="transition-all duration-500">
-            {renderImpeller(impellerType, cx, y, impellerHalf, animated, i)}
+          <g key={i} style={{ transform: `translateY(${y}px)`, transition: "transform 500ms ease" }}>
+            {renderImpeller(impellerType, cx, 0, impellerHalf, animated, i)}
           </g>
         ))}
 
@@ -252,6 +255,7 @@ export default function BioreactorDiagram({
           </text>
         )}
       </svg>
+      </div>
     </div>
   );
 }

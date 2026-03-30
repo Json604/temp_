@@ -64,10 +64,10 @@
   --btn-primary-text: #2a2a42;
   --btn-primary-hover-border: rgba(178, 120, 42, 0.55);
   --btn-primary-hover-shadow: 0 0 24px rgba(178, 120, 42, 0.15), 0 4px 16px rgba(0, 0, 0, 0.08);
-  --btn-toggle-bg: rgba(0, 0, 0, 0.03);
-  --btn-toggle-border: rgba(0, 0, 0, 0.1);
-  --btn-toggle-text: rgba(60, 60, 90, 0.85);
-  --btn-toggle-hover-bg: rgba(0, 0, 0, 0.05);
+  --btn-toggle-bg: rgba(245, 243, 238, 1);
+  --btn-toggle-border: rgba(0, 0, 0, 0.12);
+  --btn-toggle-text: rgba(50, 50, 75, 0.9);
+  --btn-toggle-hover-bg: rgba(238, 234, 226, 1);
   --btn-toggle-active-bg: linear-gradient(135deg, rgba(178, 120, 42, 0.14), rgba(74, 158, 142, 0.08));
   --btn-toggle-active-border: rgba(178, 120, 42, 0.35);
   --btn-toggle-active-text: #2a2a42;
