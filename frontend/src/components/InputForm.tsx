@@ -184,6 +184,101 @@ const ORGANISM_INFO: Record<string, { traits: string }> = {
   other_yeast: { traits: "Conservative estimates" },
 };
 
+function RequiredMark() {
+  return (
+    <span className="text-risk-high ml-1 text-base font-semibold leading-none align-top" aria-hidden="true">
+      *
+    </span>
+  );
+}
+
+/** Range / bounds / cross-field checks only — omit empty required (those stay on Continue/submit). */
+function getInlineRangeError(key: keyof FormState, f: FormState): string | undefined {
+  switch (key) {
+    case "v_lab": {
+      if (!f.v_lab.trim()) return undefined;
+      const vLab = parseFloat(f.v_lab);
+      if (isNaN(vLab) || vLab <= 0) return "Volume must be greater than zero.";
+      if (vLab > 1000) return "Lab volume must not exceed 1000 L.";
+      return undefined;
+    }
+    case "v_target": {
+      if (!f.v_target.trim()) return undefined;
+      const vTarget = parseFloat(f.v_target);
+      const vLab = parseFloat(f.v_lab);
+      if (vTarget <= 0) return "Volume must be greater than zero.";
+      if (!isNaN(vLab) && vLab > 0 && vTarget <= vLab)
+        return "Target scale must be larger than lab scale.";
+      return undefined;
+    }
+    case "rpm": {
+      if (!f.rpm.trim()) return undefined;
+      const rpm = parseFloat(f.rpm);
+      if (rpm <= 0) return "RPM must be greater than zero.";
+      if (rpm > 3000) return "RPM must not exceed 3000.";
+      return undefined;
+    }
+    case "vvm": {
+      if (!f.vvm.trim()) return undefined;
+      const vvm = parseFloat(f.vvm);
+      if (vvm < 0.1 || vvm > 5.0) return "VVM must be between 0.1 and 5.0.";
+      return undefined;
+    }
+    case "h_d_target": {
+      if (!f.h_d_target.trim()) return undefined;
+      const hd = parseFloat(f.h_d_target);
+      if (hd < 0.5 || hd > 4.0) return "H/D ratio must be between 0.5 and 4.0.";
+      return undefined;
+    }
+    case "h_d_lab": {
+      if (!f.h_d_lab.trim()) return undefined;
+      const hd = parseFloat(f.h_d_lab);
+      if (hd < 0.5 || hd > 4.0) return "H/D ratio must be between 0.5 and 4.0.";
+      return undefined;
+    }
+    case "biomass": {
+      if (!f.biomass.trim()) return undefined;
+      const biomass = parseFloat(f.biomass);
+      if (biomass <= 0) return "Biomass must be greater than zero.";
+      if (f.biomass_unit === "g_L_CDW" && biomass > 200)
+        return `Biomass of ${biomass} g/L exceeds maximum supported value (200 g/L).`;
+      return undefined;
+    }
+    case "temperature": {
+      if (!f.temperature.trim()) return undefined;
+      const temp = parseFloat(f.temperature);
+      if (temp < 15 || temp > 55)
+        return "Temperature must be between 15\u00B0C and 55\u00B0C.";
+      return undefined;
+    }
+    case "do_setpoint": {
+      if (f.do_setpoint === "") return undefined;
+      const dosp = parseFloat(f.do_setpoint);
+      if (isNaN(dosp) || dosp < 0 || dosp > 100)
+        return "DO setpoint must be between 0% and 100%.";
+      return undefined;
+    }
+    case "our_measured": {
+      if (f.our_mode !== "measured") return undefined;
+      if (!f.our_measured.trim()) return undefined;
+      const our = parseFloat(f.our_measured);
+      if (our <= 0 || our > 500) return "OUR must be between 0 and 500 mmol/L/h.";
+      return undefined;
+    }
+    case "o2_outlet": {
+      if (f.our_mode !== "exhaust_gas") return undefined;
+      if (!f.o2_outlet.trim()) return undefined;
+      const inlet = parseFloat(f.o2_inlet);
+      const outlet = parseFloat(f.o2_outlet);
+      if (!isNaN(inlet) && !isNaN(outlet) && outlet >= inlet)
+        return "Outlet O\u2082 must be lower than inlet O\u2082.";
+      return undefined;
+    }
+    default:
+      return undefined;
+  }
+}
+
 // --- Component ---
 
 interface InputFormProps {
@@ -260,6 +355,50 @@ export default function InputForm({ onStateChange }: InputFormProps) {
       }
     },
     [submitted]
+  );
+
+  const handleBoundedChange = useCallback(
+    (key: keyof FormState, value: string) => {
+      set(key, value as never);
+      setErrors((prev) => {
+        const nextForm = { ...form, [key]: value } as FormState;
+        const n: ValidationErrors = { ...prev };
+
+        const err = getInlineRangeError(key, nextForm);
+        if (err) n[key] = err;
+        else delete n[key];
+
+        if (key === "v_lab") {
+          const vt = getInlineRangeError("v_target", nextForm);
+          if (vt) n.v_target = vt;
+          else delete n.v_target;
+        }
+
+        if (key === "o2_inlet") {
+          const o2e = getInlineRangeError("o2_outlet", nextForm);
+          if (o2e) n.o2_outlet = o2e;
+          else delete n.o2_outlet;
+        }
+
+        return n;
+      });
+    },
+    [form, set]
+  );
+
+  const handleBiomassUnitChange = useCallback(
+    (u: BiomassUnit) => {
+      set("biomass_unit", u);
+      setErrors((prev) => {
+        const nextForm = { ...form, biomass_unit: u };
+        const err = getInlineRangeError("biomass", nextForm);
+        const n = { ...prev };
+        if (err) n.biomass = err;
+        else delete n.biomass;
+        return n;
+      });
+    },
+    [form, set]
   );
 
   // --- Scale ratio ---
@@ -401,68 +540,76 @@ export default function InputForm({ onStateChange }: InputFormProps) {
       }
 
       if (stepId === "b") {
-        const vLab = parseFloat(form.v_lab);
         if (!form.v_lab) errs.v_lab = "Lab working volume is required.";
-        else if (vLab <= 0) errs.v_lab = "Volume must be greater than zero.";
-        else if (vLab > 1000) errs.v_lab = "Lab volume must not exceed 1000 L.";
+        else {
+          const r = getInlineRangeError("v_lab", form);
+          if (r) errs.v_lab = r;
+        }
 
-        const vTarget = parseFloat(form.v_target);
         if (!form.v_target) errs.v_target = "Target working volume is required.";
-        else if (vTarget <= 0) errs.v_target = "Volume must be greater than zero.";
-        else if (!isNaN(vLab) && vTarget <= vLab)
-          errs.v_target = "Target scale must be larger than lab scale.";
+        else {
+          const r = getInlineRangeError("v_target", form);
+          if (r) errs.v_target = r;
+        }
       }
 
       if (stepId === "c") {
-        const rpm = parseFloat(form.rpm);
         if (!form.rpm) errs.rpm = "RPM is required.";
-        else if (rpm <= 0) errs.rpm = "RPM must be greater than zero.";
-        else if (rpm > 3000) errs.rpm = "RPM must not exceed 3000.";
+        else {
+          const r = getInlineRangeError("rpm", form);
+          if (r) errs.rpm = r;
+        }
 
-        const vvm = parseFloat(form.vvm);
-        if (form.vvm && (vvm < 0.1 || vvm > 5.0))
-          errs.vvm = "VVM must be between 0.1 and 5.0.";
+        if (form.vvm) {
+          const r = getInlineRangeError("vvm", form);
+          if (r) errs.vvm = r;
+        }
 
-        const hdTarget = parseFloat(form.h_d_target);
-        if (form.h_d_target && (hdTarget < 0.5 || hdTarget > 4.0))
-          errs.h_d_target = "H/D ratio must be between 0.5 and 4.0.";
+        if (form.h_d_target) {
+          const r = getInlineRangeError("h_d_target", form);
+          if (r) errs.h_d_target = r;
+        }
 
-        const hdLab = parseFloat(form.h_d_lab);
-        if (form.h_d_lab && (hdLab < 0.5 || hdLab > 4.0))
-          errs.h_d_lab = "H/D ratio must be between 0.5 and 4.0.";
+        if (form.h_d_lab) {
+          const r = getInlineRangeError("h_d_lab", form);
+          if (r) errs.h_d_lab = r;
+        }
       }
 
       if (stepId === "d") {
-        const biomass = parseFloat(form.biomass);
         if (!form.biomass) errs.biomass = "Biomass is required.";
-        else if (biomass <= 0) errs.biomass = "Biomass must be greater than zero.";
-        else if (form.biomass_unit === "g_L_CDW" && biomass > 200)
-          errs.biomass = `Biomass of ${biomass} g/L exceeds maximum supported value (200 g/L).`;
+        else {
+          const r = getInlineRangeError("biomass", form);
+          if (r) errs.biomass = r;
+        }
 
-        const temp = parseFloat(form.temperature);
         if (!form.temperature) errs.temperature = "Temperature is required.";
-        else if (temp < 15 || temp > 55)
-          errs.temperature = "Temperature must be between 15\u00B0C and 55\u00B0C.";
+        else {
+          const r = getInlineRangeError("temperature", form);
+          if (r) errs.temperature = r;
+        }
 
-        const dosp = parseFloat(form.do_setpoint);
-        if (form.do_setpoint !== "" && (dosp < 0 || dosp > 100))
-          errs.do_setpoint = "DO setpoint must be between 0% and 100%.";
+        if (form.do_setpoint !== "") {
+          const r = getInlineRangeError("do_setpoint", form);
+          if (r) errs.do_setpoint = r;
+        }
 
         if (form.our_mode === "measured") {
-          const ourMeasured = parseFloat(form.our_measured);
           if (!form.our_measured)
             errs.our_measured = "Measured OUR value is required.";
-          else if (ourMeasured <= 0 || ourMeasured > 500)
-            errs.our_measured = "OUR must be between 0 and 500 mmol/L/h.";
+          else {
+            const r = getInlineRangeError("our_measured", form);
+            if (r) errs.our_measured = r;
+          }
         }
 
         if (form.our_mode === "exhaust_gas") {
           if (!form.o2_outlet) errs.o2_outlet = "Outlet O\u2082% is required.";
+          else {
+            const r = getInlineRangeError("o2_outlet", form);
+            if (r) errs.o2_outlet = r;
+          }
           if (!form.gas_flow) errs.gas_flow = "Gas flow rate is required.";
-          const inlet = parseFloat(form.o2_inlet);
-          const outlet = parseFloat(form.o2_outlet);
-          if (!isNaN(inlet) && !isNaN(outlet) && outlet >= inlet)
-            errs.o2_outlet = "Outlet O\u2082 must be lower than inlet O\u2082.";
         }
       }
 
@@ -743,9 +890,9 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                 onClick={() => goToStep(i)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all duration-200 ${
                   isActive
-                    ? "bg-accent/[0.12] text-accent"
+                    ? "option-surface-sm option-surface--selected text-accent"
                     : isCompleted
-                      ? "bg-black/[0.02] dark:bg-white/[0.03] text-silver-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] cursor-pointer"
+                      ? "option-surface-sm text-silver-300 cursor-pointer"
                       : i > currentStep + 1
                         ? "bg-transparent text-silver-600 opacity-50 cursor-not-allowed"
                         : "bg-transparent text-silver-500 hover:text-silver-400 cursor-pointer"
@@ -758,8 +905,10 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                     <path d="M4.5 7l1.5 1.5 3.5-3.5" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 ) : (
-                  <span className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold ${
-                    isActive ? "bg-accent/20 text-accent" : "bg-black/[0.03] dark:bg-white/[0.04] text-silver-600"
+                  <span className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold border ${
+                    isActive
+                      ? "border-[color:var(--option-selected-border)] bg-[var(--bg-elevated)] text-accent shadow-sm"
+                      : "border-[var(--border-secondary)] bg-[var(--bg-elevated)] text-silver-600"
                   }`}>
                     {step.icon}
                   </span>
@@ -775,7 +924,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
             className="h-full rounded-full transition-all duration-500 ease-out"
             style={{
               width: `${((currentStep + 1) / totalSteps) * 100}%`,
-              background: "linear-gradient(90deg, #e2a052, #5bbaa8)",
+              background: "linear-gradient(90deg, var(--text-grad-accent-start), var(--text-grad-accent-end))",
             }}
           />
         </div>
@@ -818,6 +967,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                 <div id="organism_class">
                   <label className="block text-[11px] font-medium uppercase tracking-[0.08em] text-silver-500 mb-2">
                     Organism class
+                    <RequiredMark />
                   </label>
                   <div className="flex gap-2">
                     {(["bacteria", "yeast"] as OrganismClass[]).map((cls) => (
@@ -829,7 +979,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                           form.organism_class === cls ? "active" : ""
                         }`}
                       >
-                        <span className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold bg-black/[0.04] dark:bg-white/[0.06]">
+                        <span className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold border border-[var(--border-secondary)] bg-[var(--bg-elevated)]">
                           {cls === "bacteria" ? "B" : "Y"}
                         </span>
                         {cls === "bacteria" ? "Bacteria" : "Yeast"}
@@ -843,6 +993,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                   <div id="organism_species" className="animate-fade-in">
                     <label className="block text-[11px] font-medium uppercase tracking-[0.08em] text-silver-500 mb-2">
                       Select your organism
+                      <RequiredMark />
                     </label>
                     <div className="grid grid-cols-1 gap-2">
                       {speciesOptions.map((s) => {
@@ -852,22 +1003,14 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                             key={s.value}
                             type="button"
                             onClick={() => set("organism_species", s.value)}
-                            className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all duration-200 ${
-                              form.organism_species === s.value
-                                ? "shadow-glow"
-                                : "border-black/[0.12] dark:border-white/[0.06] hover:border-black/[0.18] dark:hover:border-white/[0.1]"
+                            className={`flex items-center gap-3 p-3.5 rounded-xl text-left transition-all duration-200 option-surface ${
+                              form.organism_species === s.value ? "option-surface--selected" : ""
                             }`}
-                            style={form.organism_species === s.value ? {
-                              background: "var(--btn-toggle-active-bg)",
-                              borderColor: "var(--btn-toggle-active-border)",
-                            } : {
-                              background: "var(--btn-toggle-bg)",
-                            }}
                           >
-                            <span className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold ${
+                            <span className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold border ${
                               form.organism_species === s.value
-                                ? "bg-accent/[0.15] text-accent"
-                                : "bg-black/[0.05] dark:bg-white/[0.06] text-silver-400"
+                                ? "border-[color:var(--option-selected-border)] bg-[var(--bg-elevated)] text-accent"
+                                : "border-[var(--border-primary)] bg-[var(--bg-elevated)] text-silver-400"
                             }`}>
                               {s.value.split("_").map(w => w[0].toUpperCase()).slice(0, 2).join("")}
                             </span>
@@ -881,8 +1024,8 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                             </div>
                             {form.organism_species === s.value && (
                               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
-                                <circle cx="8" cy="8" r="7" stroke="rgba(226,160,82,0.4)" strokeWidth="1.5" />
-                                <path d="M5 8l2 2 4-4" stroke="#e2a052" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <circle cx="8" cy="8" r="7" stroke="var(--accent-focus)" strokeWidth="1.5" />
+                                <path d="M5 8l2 2 4-4" stroke="var(--text-grad-accent-start)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                               </svg>
                             )}
                           </button>
@@ -896,6 +1039,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                 <div id="process_type">
                   <label className="block text-[11px] font-medium uppercase tracking-[0.08em] text-silver-500 mb-2">
                     Process type
+                    <RequiredMark />
                   </label>
                   <div className="flex gap-2">
                     {(["batch", "fed_batch"] as ProcessType[]).map((pt) => (
@@ -922,11 +1066,12 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                 <div id="v_lab" className="mb-5">
                   <label className="block text-[11px] font-medium uppercase tracking-[0.08em] text-silver-500 mb-2">
                     Lab working volume (L)
+                    <RequiredMark />
                   </label>
                   <input
                     type="number"
                     value={form.v_lab}
-                    onChange={(e) => set("v_lab", e.target.value)}
+                    onChange={(e) => handleBoundedChange("v_lab", e.target.value)}
                     className={inputCls("v_lab")}
                     placeholder="e.g. 10"
                     min={0}
@@ -938,13 +1083,17 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                 <div id="v_target">
                   <label className="block text-[11px] font-medium uppercase tracking-[0.08em] text-silver-500 mb-2">
                     Target scale
+                    <RequiredMark />
                   </label>
                   {(() => {
                     const labVal = parseFloat(form.v_lab);
                     const hasLab = !isNaN(labVal) && labVal > 0;
                     const currentTarget = parseFloat(form.v_target);
                     const activeMultiplier = hasLab && !isNaN(currentTarget) && currentTarget > 0
-                      ? SCALE_MULTIPLIERS.find((m) => Math.abs(labVal * m - currentTarget) < 0.01)
+                      ? SCALE_MULTIPLIERS.find((m) => {
+                          const expected = labVal * m;
+                          return Math.abs(expected - currentTarget) <= Math.max(0.02, Math.abs(expected) * 1e-6);
+                        })
                       : undefined;
                     return (
                       <div className="flex gap-3">
@@ -956,15 +1105,12 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                               key={m}
                               type="button"
                               disabled={!hasLab}
-                              onClick={() => set("v_target", String(targetVol))}
-                              className={`flex-1 rounded-xl border px-4 py-3.5 text-center transition-all duration-200 ${
-                                isActive
-                                  ? "border-accent/40 bg-accent/[0.06]"
-                                  : "border-black/[0.06] dark:border-white/[0.06] hover:border-accent/20"
+                              onClick={() => handleBoundedChange("v_target", String(targetVol))}
+                              className={`flex-1 rounded-xl px-4 py-3.5 text-center transition-all duration-200 option-surface ${
+                                isActive ? "option-surface--selected" : ""
                               } ${!hasLab ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
-                              style={{ background: isActive ? undefined : "var(--input-bg)" }}
                             >
-                              <span className={`text-lg font-semibold font-mono ${isActive ? "text-accent" : "text-silver-200"}`}>
+                              <span className={`text-lg font-semibold font-mono ${isActive ? "text-accent" : "text-silver-300"}`}>
                                 {m.toLocaleString()}&times;
                               </span>
                               {hasLab && (
@@ -988,11 +1134,11 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                 {scaleRatio !== null && scaleRatio > 0 && (
                   <div className="mt-4 glass-panel-sm px-4 py-3 flex items-center gap-3">
                     <div className="flex items-end gap-1.5 flex-shrink-0">
-                      <div className="w-3 h-5 rounded-sm border border-accent/30 bg-accent/[0.06]" />
+                      <div className="w-3 h-5 rounded-sm border border-[color:var(--option-selected-border)] bg-[var(--bg-elevated)]" />
                       <svg width="16" height="8" viewBox="0 0 16 8" fill="none" className="mb-1">
-                        <path d="M0 4h12m0 0l-3-3m3 3l-3 3" stroke="rgba(74,158,142,0.5)" strokeWidth="1" strokeLinecap="round" />
+                        <path d="M0 4h12m0 0l-3-3m3 3l-3 3" stroke="rgba(56,130,176,0.55)" strokeWidth="1" strokeLinecap="round" />
                       </svg>
-                      <div className="w-5 h-8 rounded-sm border border-accent-warm/30 bg-accent-warm/[0.06]" />
+                      <div className="w-5 h-8 rounded-sm border border-[color:var(--option-selected-border)] bg-[var(--bg-sunken)]" />
                     </div>
                     <div className="text-sm text-silver-400">
                       Scale ratio:{" "}
@@ -1034,10 +1180,10 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                         key={imp.value}
                         type="button"
                         onClick={() => set("impeller_type", imp.value)}
-                        className={`flex flex-col items-center py-3.5 px-2 rounded-xl border text-sm transition-all duration-200 ${
+                        className={`flex flex-col items-center py-3.5 px-2 rounded-xl text-sm transition-all duration-200 ${
                           form.impeller_type === imp.value
-                            ? "bg-accent/[0.08] border-accent/30 text-silver-100 shadow-glow"
-                            : "bg-black/[0.02] dark:bg-white/[0.02] border-black/[0.06] dark:border-white/[0.03] text-silver-500 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] hover:border-black/[0.08] dark:hover:border-white/[0.06]"
+                            ? "option-surface option-surface--selected text-silver-100"
+                            : "option-surface text-silver-500"
                         }`}
                       >
                         <span className="text-2xl mb-1">{imp.icon}</span>
@@ -1055,11 +1201,12 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                   <div id="rpm">
                     <label className="block text-[11px] font-medium uppercase tracking-[0.08em] text-silver-500 mb-2">
                       Agitation at peak demand (RPM)
+                      <RequiredMark />
                     </label>
                     <input
                       type="number"
                       value={form.rpm}
-                      onChange={(e) => set("rpm", e.target.value)}
+                      onChange={(e) => handleBoundedChange("rpm", e.target.value)}
                       className={inputCls("rpm")}
                       placeholder="At highest-demand point"
                       min={0}
@@ -1074,7 +1221,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                     <input
                       type="number"
                       value={form.vvm}
-                      onChange={(e) => set("vvm", e.target.value)}
+                      onChange={(e) => handleBoundedChange("vvm", e.target.value)}
                       className={inputCls("vvm")}
                       min={0.1}
                       max={5}
@@ -1092,7 +1239,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                     <input
                       type="number"
                       value={form.h_d_lab}
-                      onChange={(e) => set("h_d_lab", e.target.value)}
+                      onChange={(e) => handleBoundedChange("h_d_lab", e.target.value)}
                       className={inputCls("h_d_lab")}
                       min={0.5}
                       max={4}
@@ -1107,7 +1254,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                     <input
                       type="number"
                       value={form.h_d_target}
-                      onChange={(e) => set("h_d_target", e.target.value)}
+                      onChange={(e) => handleBoundedChange("h_d_target", e.target.value)}
                       className={inputCls("h_d_target")}
                       placeholder="Auto-inferred from volume"
                       min={0.5}
@@ -1120,10 +1267,10 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                           key={p}
                           type="button"
                           onClick={() => set("h_d_target", String(p))}
-                          className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all duration-200 ${
+                          className={`text-[11px] px-2.5 py-1 rounded-lg transition-all duration-200 ${
                             form.h_d_target === String(p)
-                              ? "bg-accent/[0.1] border-accent/30 text-silver-100"
-                              : "bg-black/[0.02] dark:bg-white/[0.02] border-black/[0.06] dark:border-white/[0.03] text-silver-500 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
+                              ? "option-surface-sm option-surface--selected text-silver-100"
+                              : "option-surface-sm text-silver-500"
                           }`}
                         >
                           {p}
@@ -1152,10 +1299,10 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                           set("n_impellers", String(n));
                           set("n_impellers_overridden", true);
                         }}
-                        className={`w-11 h-11 rounded-xl border text-sm font-mono transition-all duration-200 ${
+                        className={`w-11 h-11 rounded-xl text-sm font-mono transition-all duration-200 ${
                           form.n_impellers === String(n)
-                            ? "bg-accent/[0.1] border-accent/30 text-silver-100"
-                            : "bg-black/[0.02] dark:bg-white/[0.02] border-black/[0.06] dark:border-white/[0.03] text-silver-500 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
+                            ? "option-surface option-surface--selected text-silver-100"
+                            : "option-surface text-silver-500"
                         }`}
                       >
                         {n}
@@ -1172,27 +1319,28 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                 <div id="biomass">
                   <label className="block text-[11px] font-medium uppercase tracking-[0.08em] text-silver-500 mb-2">
                     Peak biomass
+                    <RequiredMark />
                   </label>
                   <div className="flex gap-2">
                     <input
                       type="number"
                       value={form.biomass}
-                      onChange={(e) => set("biomass", e.target.value)}
+                      onChange={(e) => handleBoundedChange("biomass", e.target.value)}
                       className={inputCls("biomass", "flex-1")}
                       placeholder="e.g. 40"
                       min={0}
                       step="any"
                     />
-                    <div className="flex border border-black/[0.06] dark:border-white/[0.03] rounded-xl overflow-hidden">
+                    <div className="flex rounded-xl overflow-hidden option-surface-sm p-0.5 gap-0.5">
                       {(["g_L_CDW", "OD600"] as BiomassUnit[]).map((u) => (
                         <button
                           key={u}
                           type="button"
-                          onClick={() => set("biomass_unit", u)}
-                          className={`px-3 py-2 text-xs transition-all duration-200 ${
+                          onClick={() => handleBiomassUnitChange(u)}
+                          className={`px-3 py-2 text-xs transition-all duration-200 rounded-[10px] border ${
                             form.biomass_unit === u
-                              ? "bg-accent/[0.1] text-silver-100"
-                              : "bg-black/[0.02] dark:bg-white/[0.02] text-silver-500 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
+                              ? "border-[color:var(--option-selected-border)] bg-[var(--bg-elevated)] text-accent font-medium shadow-sm"
+                              : "border-transparent bg-[var(--bg-elevated)] text-silver-500 hover:bg-[var(--bg-sunken)]"
                           }`}
                         >
                           {u === "g_L_CDW" ? "g/L CDW" : "OD600"}
@@ -1220,8 +1368,8 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                   </p>
                   <div className="space-y-2">
                     {/* Measured */}
-                    <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
-                      form.our_mode === "measured" ? "border-accent/30 bg-accent/[0.04]" : "border-black/[0.06] dark:border-white/[0.03] hover:border-black/[0.08] dark:hover:border-white/[0.06] bg-black/[0.01] dark:bg-white/[0.01]"
+                    <label className={`flex items-start gap-3 p-4 rounded-xl cursor-pointer transition-all duration-200 option-surface ${
+                      form.our_mode === "measured" ? "option-surface--selected" : ""
                     }`}>
                       <input type="radio" name="our_mode" value="measured" checked={form.our_mode === "measured"} onChange={() => set("our_mode", "measured")} className="mt-0.5 accent-accent" />
                       <div className="flex-1">
@@ -1229,7 +1377,11 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                         <p className="text-[10px] text-silver-600 mt-0.5">Highest confidence &mdash; upgrades all domains</p>
                         {form.our_mode === "measured" && (
                           <div className="mt-3" id="our_measured">
-                            <input type="number" value={form.our_measured} onChange={(e) => set("our_measured", e.target.value)} className={inputCls("our_measured")} placeholder="OUR (mmol/L/h)" min={0} max={500} step="any" />
+                            <label className="block text-[11px] text-silver-600 mb-1.5">
+                              OUR (mmol/L/h)
+                              <RequiredMark />
+                            </label>
+                            <input type="number" value={form.our_measured} onChange={(e) => handleBoundedChange("our_measured", e.target.value)} className={inputCls("our_measured")} placeholder="e.g. 45" min={0} max={500} step="any" />
                             {fieldError("our_measured")}
                           </div>
                         )}
@@ -1237,8 +1389,8 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                     </label>
 
                     {/* Estimate */}
-                    <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
-                      form.our_mode === "estimate" ? "border-accent/30 bg-accent/[0.04]" : "border-black/[0.06] dark:border-white/[0.03] hover:border-black/[0.08] dark:hover:border-white/[0.06] bg-black/[0.01] dark:bg-white/[0.01]"
+                    <label className={`flex items-start gap-3 p-4 rounded-xl cursor-pointer transition-all duration-200 option-surface ${
+                      form.our_mode === "estimate" ? "option-surface--selected" : ""
                     }`}>
                       <input type="radio" name="our_mode" value="estimate" checked={form.our_mode === "estimate"} onChange={() => set("our_mode", "estimate")} className="mt-0.5 accent-accent" />
                       <div className="flex-1">
@@ -1247,7 +1399,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                         {form.our_mode === "estimate" && (
                           <div className="mt-3">
                             {ourEstimation ? (
-                              <div className="glass-panel-sm border-accent/20 bg-accent/[0.04] px-4 py-3 text-sm text-accent italic">
+                              <div className="glass-panel-sm border-[var(--border-primary)] bg-[var(--bg-sunken)] px-4 py-3 text-sm text-accent italic">
                                 OUR estimated: ~{ourEstimation.our_min.toFixed(0)}&ndash;{ourEstimation.our_max.toFixed(0)} mmol/L/h
                                 <span className="text-accent/70 block text-xs mt-1">
                                   Based on {ourEstimation.species_name} qO&#x2082; range {ourEstimation.qo2_min}&ndash;{ourEstimation.qo2_max} mmol/g/h &times; your {ourEstimation.biomass_cdw.toFixed(1)} g/L biomass
@@ -1267,8 +1419,8 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                     </label>
 
                     {/* Exhaust gas */}
-                    <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
-                      form.our_mode === "exhaust_gas" ? "border-accent/30 bg-accent/[0.04]" : "border-black/[0.06] dark:border-white/[0.03] hover:border-black/[0.08] dark:hover:border-white/[0.06] bg-black/[0.01] dark:bg-white/[0.01]"
+                    <label className={`flex items-start gap-3 p-4 rounded-xl cursor-pointer transition-all duration-200 option-surface ${
+                      form.our_mode === "exhaust_gas" ? "option-surface--selected" : ""
                     }`}>
                       <input type="radio" name="our_mode" value="exhaust_gas" checked={form.our_mode === "exhaust_gas"} onChange={() => set("our_mode", "exhaust_gas")} className="mt-0.5 accent-accent" />
                       <div className="flex-1">
@@ -1279,21 +1431,27 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                             <div className="grid grid-cols-3 gap-2">
                               <div>
                                 <label className="text-[11px] text-silver-600">Inlet O&#x2082; (%)</label>
-                                <input type="number" value={form.o2_inlet} onChange={(e) => set("o2_inlet", e.target.value)} className={inputCls("o2_inlet")} min={0} max={100} step="0.1" />
+                                <input type="number" value={form.o2_inlet} onChange={(e) => handleBoundedChange("o2_inlet", e.target.value)} className={inputCls("o2_inlet")} min={0} max={100} step="0.1" />
                               </div>
                               <div id="o2_outlet">
-                                <label className="text-[11px] text-silver-600">Outlet O&#x2082; (%)</label>
-                                <input type="number" value={form.o2_outlet} onChange={(e) => set("o2_outlet", e.target.value)} className={inputCls("o2_outlet")} min={0} max={100} step="0.1" />
+                                <label className="text-[11px] text-silver-600">
+                                  Outlet O&#x2082; (%)
+                                  <RequiredMark />
+                                </label>
+                                <input type="number" value={form.o2_outlet} onChange={(e) => handleBoundedChange("o2_outlet", e.target.value)} className={inputCls("o2_outlet")} min={0} max={100} step="0.1" />
                                 {fieldError("o2_outlet")}
                               </div>
                               <div id="gas_flow">
-                                <label className="text-[11px] text-silver-600">Gas flow (L/min)</label>
-                                <input type="number" value={form.gas_flow} onChange={(e) => set("gas_flow", e.target.value)} className={inputCls("gas_flow")} min={0} step="any" />
+                                <label className="text-[11px] text-silver-600">
+                                  Gas flow (L/min)
+                                  <RequiredMark />
+                                </label>
+                                <input type="number" value={form.gas_flow} onChange={(e) => handleBoundedChange("gas_flow", e.target.value)} className={inputCls("gas_flow")} min={0} step="any" />
                                 {fieldError("gas_flow")}
                               </div>
                             </div>
                             {exhaustGasOur !== null && exhaustGasOur > 0 && (
-                              <div className="glass-panel-sm border-accent/20 bg-accent/[0.04] px-4 py-3 text-sm text-accent italic">
+                              <div className="glass-panel-sm border-[var(--border-primary)] bg-[var(--bg-sunken)] px-4 py-3 text-sm text-accent italic">
                                 OUR calculated: ~{exhaustGasOur.toFixed(1)} mmol/L/h
                                 <span className="text-accent/70 block text-xs mt-0.5">Calculated from exhaust gas data</span>
                               </div>
@@ -1311,14 +1469,14 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                   </label>
                   <div className="flex items-center gap-3">
                     <div className="flex-[3] relative">
-                      <input type="range" min={0} max={100} value={form.do_setpoint || 30} onChange={(e) => set("do_setpoint", e.target.value)} className="w-full accent-accent h-1.5" />
+                      <input type="range" min={0} max={100} value={form.do_setpoint || 30} onChange={(e) => handleBoundedChange("do_setpoint", e.target.value)} className="w-full accent-accent h-1.5" />
                       <div className="flex justify-between text-[9px] text-silver-700 mt-1 px-0.5">
                         <span>0%</span>
                         <span className="text-risk-low/50">20&ndash;40% optimal</span>
                         <span>100%</span>
                       </div>
                     </div>
-                    <input type="number" value={form.do_setpoint} onChange={(e) => set("do_setpoint", e.target.value)} className={inputCls("do_setpoint", "!w-20 flex-shrink-0")} min={0} max={100} />
+                    <input type="number" value={form.do_setpoint} onChange={(e) => handleBoundedChange("do_setpoint", e.target.value)} className={inputCls("do_setpoint", "!w-20 flex-shrink-0")} min={0} max={100} />
                   </div>
                   {fieldError("do_setpoint")}
                 </div>
@@ -1327,11 +1485,12 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                   <div id="temperature">
                     <label className="block text-[11px] font-medium uppercase tracking-[0.08em] text-silver-500 mb-2">
                       Process temperature (&deg;C)
+                      <RequiredMark />
                     </label>
                     <input
                       type="number"
                       value={form.temperature}
-                      onChange={(e) => set("temperature", e.target.value)}
+                      onChange={(e) => handleBoundedChange("temperature", e.target.value)}
                       className={inputCls("temperature")}
                       placeholder={form.organism_class === "yeast" ? "Default: 30" : "Default: 37"}
                       min={15}
@@ -1355,6 +1514,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                 <div id="feed_frequency">
                   <label className="block text-[11px] font-medium uppercase tracking-[0.08em] text-silver-500 mb-2">
                     Feed frequency
+                    {form.process_type === "fed_batch" && <RequiredMark />}
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     {FEED_FREQUENCY_OPTIONS.map((opt) => (
@@ -1412,7 +1572,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Transparency info */}
+              {/* Transparency / confidence label — commented out for now, may revisit later
               <span className="text-[11px] text-silver-600 hidden sm:inline relative group/conf">
                 <span className={`font-medium cursor-help border-b border-dashed ${
                   transparency.confidence === "high_confidence"
@@ -1423,8 +1583,6 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                 }`}>
                   {transparency.label}
                 </span>
-                {" "}&middot; {transparency.entered}/{transparency.total} params
-                {/* Tooltip */}
                 <span className="absolute bottom-full left-0 mb-2 w-56 px-3 py-2 rounded-lg text-[10px] leading-relaxed bg-[var(--bg-elevated)] border border-[var(--border-primary)] shadow-lg text-silver-300 opacity-0 pointer-events-none group-hover/conf:opacity-100 transition-opacity duration-200 z-30">
                   {transparency.confidence === "high_confidence"
                     ? "All core parameters provided with measured values. Highest reliability."
@@ -1433,6 +1591,7 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                       : "Preliminary estimate. Provide more measured values to increase confidence."}
                 </span>
               </span>
+              */}
 
               {isLastStep ? (
                 <button

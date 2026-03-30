@@ -34,8 +34,8 @@ const config: Config = {
         // Accent — works in both themes
         accent: {
           DEFAULT: "var(--text-grad-accent-start)",
-          warm: "#5bbaa8",
-          cool: "#e2a052",
+          warm: "var(--text-grad-accent-end)",
+          cool: "var(--text-grad-accent-start)",
         },
         // Risk colours — accessible in both modes
         risk: {
@@ -46,7 +46,7 @@ const config: Config = {
         },
         // Legacy compat for constants
         navy: "#1B3A5C",
-        teal: "#0D7377",
+        teal: "#3882b0",
       },
       fontFamily: {
         sans: ['"DM Sans"', 'system-ui', '-apple-system', 'sans-serif'],
@@ -57,8 +57,8 @@ const config: Config = {
         'glass': '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
         'glass-sm': '0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.04)',
         'glass-lg': '0 16px 64px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
-        'glow': '0 0 24px rgba(226,160,82,0.15)',
-        'glow-accent': '0 0 32px rgba(226,160,82,0.2)',
+        'glow': '0 0 24px rgba(56,130,176,0.14)',
+        'glow-accent': '0 0 32px rgba(56,130,176,0.18)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out',

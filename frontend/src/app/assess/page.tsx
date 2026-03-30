@@ -41,7 +41,7 @@ export default function AssessPage() {
             <Link
               href="/dashboard"
               className="text-sm px-3 py-1.5 rounded-lg font-medium transition-all"
-              style={{ color: "var(--text-tertiary)", border: "1px solid var(--border-primary)" }}
+              style={{ color: "var(--text-primary)", border: "1px solid var(--border-primary)" }}
             >
               Dashboard
             </Link>

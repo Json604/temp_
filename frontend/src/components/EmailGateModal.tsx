@@ -100,15 +100,15 @@ export default function EmailGateModal({ onClose, onSuccess }: { onClose: () => 
         {/* Top accent line */}
         <div
           className="absolute top-0 left-8 right-8 h-[2px] rounded-full"
-          style={{ background: "linear-gradient(90deg, #b27828, #5bbaa8)" }}
+          style={{ background: "linear-gradient(90deg, var(--text-grad-accent-start), var(--text-grad-accent-end))" }}
         />
 
         <div className="text-center mb-6">
           <div
             className="mx-auto mb-4 w-11 h-11 rounded-xl flex items-center justify-center"
-            style={{ background: "rgba(178, 120, 42, 0.1)" }}
+            style={{ background: "var(--accent-glow)" }}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="#b27828" strokeWidth="1.5" className="w-5 h-5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-grad-accent-start)" strokeWidth="1.5" className="w-5 h-5">
               {mode === "signup" ? (
                 <><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></>
               ) : (
@@ -134,6 +134,9 @@ export default function EmailGateModal({ onClose, onSuccess }: { onClose: () => 
               style={{ color: "var(--text-tertiary)" }}
             >
               Work email address
+              <span className="text-risk-high ml-1 text-base font-semibold leading-none align-top" aria-hidden="true">
+                *
+              </span>
             </label>
             <input
               ref={inputRef}
@@ -159,6 +162,9 @@ export default function EmailGateModal({ onClose, onSuccess }: { onClose: () => 
               style={{ color: "var(--text-tertiary)" }}
             >
               Password
+              <span className="text-risk-high ml-1 text-base font-semibold leading-none align-top" aria-hidden="true">
+                *
+              </span>
             </label>
             <input
               id="auth-password"
@@ -185,9 +191,9 @@ export default function EmailGateModal({ onClose, onSuccess }: { onClose: () => 
             disabled={submitting}
             className="w-full py-3 text-sm font-medium rounded-xl transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             style={{
-              background: "linear-gradient(135deg, #b27828, #8a5c1e)",
+              background: `linear-gradient(135deg, var(--text-grad-accent-start), var(--text-grad-accent-end))`,
               color: "#ffffff",
-              boxShadow: "0 4px 16px rgba(178, 120, 40, 0.25)",
+              boxShadow: `0 4px 16px var(--accent-glow)`,
             }}
           >
             {submitting

@@ -129,9 +129,9 @@ export default function LandingPage() {
               onClick={handleAssessClick}
               className="px-10 py-3.5 text-sm font-medium relative z-10 rounded-xl transition-all duration-300 hover:-translate-y-0.5"
               style={{
-                background: "linear-gradient(135deg, #b27828, #8a5c1e)",
+                background: `linear-gradient(135deg, var(--text-grad-accent-start), var(--text-grad-accent-end))`,
                 color: "#ffffff",
-                boxShadow: "0 4px 20px rgba(178, 120, 40, 0.3), 0 2px 8px rgba(0, 0, 0, 0.1)",
+                boxShadow: `0 4px 20px var(--accent-glow), 0 2px 8px rgba(0, 0, 0, 0.1)`,
               }}
             >
               Assess my process
@@ -158,7 +158,7 @@ export default function LandingPage() {
               >
                 <div
                   className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300"
-                  style={{ background: "rgba(178, 120, 42, 0.1)", color: "#b27828" }}
+                  style={{ background: "var(--accent-glow)", color: "var(--text-grad-accent-start)" }}
                 >
                   {d.icon}
                 </div>

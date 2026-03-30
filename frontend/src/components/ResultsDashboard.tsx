@@ -978,7 +978,7 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
               type="button"
               onClick={onBackClick}
               className="text-sm px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all"
-              style={{ color: "var(--text-tertiary)", border: "1px solid var(--border-primary)" }}
+              style={{ color: "var(--text-primary)", border: "1px solid var(--border-primary)" }}
             >
               <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M10 4l-4 4 4 4" />
@@ -989,7 +989,7 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
           <Link
             href="/dashboard"
             className="text-sm px-3 py-1.5 rounded-lg font-medium transition-all"
-            style={{ color: "var(--text-tertiary)", border: "1px solid var(--border-primary)" }}
+            style={{ color: "var(--text-primary)", border: "1px solid var(--border-primary)" }}
           >
             Dashboard
           </Link>

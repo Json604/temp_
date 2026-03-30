@@ -107,6 +107,12 @@ export function ThemeToggle() {
       return;
     }
 
+    const goingDark = !isDark;
+
+    document.documentElement.dataset.themeTransition = goingDark
+      ? "sunset"
+      : "sunrise";
+
     const transition = document.startViewTransition(() => {
       flushSync(applyTheme);
     });
@@ -114,19 +120,43 @@ export function ThemeToggle() {
     const ready = transition?.ready;
     if (ready && typeof ready.then === "function") {
       ready.then(() => {
-        document.documentElement.animate(
-          {
-            clipPath: [
-              `circle(0px at ${x}px ${y}px)`,
-              `circle(${maxRadius}px at ${x}px ${y}px)`,
-            ],
-          },
-          {
-            duration: 600,
-            easing: "ease-in-out",
-            pseudoElement: "::view-transition-new(root)",
-          }
-        );
+        if (goingDark) {
+          document.documentElement.animate(
+            {
+              clipPath: [
+                `circle(${maxRadius}px at ${x}px ${y}px)`,
+                `circle(0px at ${x}px ${y}px)`,
+              ],
+            },
+            {
+              duration: 600,
+              easing: "ease-in-out",
+              fill: "forwards",
+              pseudoElement: "::view-transition-old(root)",
+            }
+          );
+        } else {
+          document.documentElement.animate(
+            {
+              clipPath: [
+                `circle(0px at ${x}px ${y}px)`,
+                `circle(${maxRadius}px at ${x}px ${y}px)`,
+              ],
+            },
+            {
+              duration: 600,
+              easing: "ease-in-out",
+              pseudoElement: "::view-transition-new(root)",
+            }
+          );
+        }
+      });
+    }
+
+    const finished = transition?.finished;
+    if (finished && typeof finished.then === "function") {
+      finished.then(() => {
+        delete document.documentElement.dataset.themeTransition;
       });
     }
   }, [isDark]);
@@ -144,7 +174,7 @@ export function ThemeToggle() {
       aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
     >
       {isDark ? (
-        <Moon size={16} className="text-[#5bbaa8]" />
+        <Moon size={16} style={{ color: "var(--text-grad-accent-end)" }} />
       ) : (
         <Sun size={16} className="text-[#f59e0b]" />
       )}
