@@ -838,14 +838,14 @@ function DomainCard({
         <div className="relative flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <span
-              className="w-1.5 h-1.5 rounded-full"
+              className="w-2 h-2 rounded-full"
               style={{
                 background: confidence === "high_confidence" ? "#34d399"
                   : confidence === "reliable" ? "#fbbf24"
                   : "#fb923c",
               }}
             />
-            <span className="text-[10px] text-silver-600">{confidenceLabel(confidence)}</span>
+            <span className="text-[10px] text-silver-500 font-medium">{confidenceLabel(confidence)}</span>
           </div>
           <div
             className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 ${
@@ -874,7 +874,7 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
   const { theme } = useTheme();
   const [selectedDomain, setSelectedDomain] = useState<RiskDomain | null>(null);
   const [pvMultiplier, setPvMultiplier] = useState(1.0);
-  const [showProjections, setShowProjections] = useState(false);
+  const [showProjections, setShowProjections] = useState(true);
 
   const adjustedKla = useMemo(() => {
     return klaVantRiet(
@@ -1095,9 +1095,13 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
             <h3 className="text-[11px] font-semibold text-silver-500 uppercase tracking-[0.08em] mb-2">Warnings</h3>
             <div className="space-y-1.5">
               {results.flags.map((f, i) => (
-                <p key={i} className="text-xs text-risk-moderate glass-panel-sm border-risk-moderate/15 bg-risk-moderate/[0.04] px-3 py-2 flex items-start gap-2">
-                  {f.domain && <span className="font-medium uppercase text-[10px]">[{f.domain}]</span>}
-                  <span>{f.message}</span>
+                <p key={i} className="text-xs text-risk-moderate glass-panel-sm border-risk-moderate/15 bg-risk-moderate/[0.04] px-3 py-2.5 flex items-start gap-2.5">
+                  {f.domain && (
+                    <span className="flex-shrink-0 inline-flex items-center gap-1 risk-badge risk-badge-moderate !text-[9px] !py-0.5 !px-2 uppercase">
+                      {f.domain}
+                    </span>
+                  )}
+                  <span className="leading-relaxed">{f.message}</span>
                 </p>
               ))}
             </div>
@@ -1235,7 +1239,7 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
           </div>
           <div className="flex items-center gap-3">
             {isExample ? (
-              <div className="text-right">
+              <div className="text-right relative group/pdf">
                 <button
                   type="button"
                   disabled
@@ -1246,6 +1250,9 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
                   </svg>
                   Generate PDF Report
                 </button>
+                <span className="absolute bottom-full right-0 mb-2 px-3 py-1.5 rounded-lg text-[10px] bg-[var(--bg-elevated)] border border-[var(--border-primary)] shadow-lg text-silver-400 opacity-0 pointer-events-none group-hover/pdf:opacity-100 transition-opacity duration-200 whitespace-nowrap z-30">
+                  Sign in and run your own assessment to generate PDFs
+                </span>
               </div>
             ) : (
               <GeneratePdfButton inputs={inputs} derived={derived} results={results} />

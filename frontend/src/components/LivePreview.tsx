@@ -396,7 +396,7 @@ export default function LivePreview({ formState }: LivePreviewProps) {
                     {score}
                   </span>
                 ) : (
-                  <span className="text-[10px] text-silver-700 font-mono">---</span>
+                  <span className="text-[10px] text-silver-600 font-mono">&mdash;</span>
                 )}
               </div>
             </div>
@@ -420,7 +420,7 @@ export default function LivePreview({ formState }: LivePreviewProps) {
       {/* Hint when no results */}
       {!liveResults && progress.filled > 0 && (
         <div className="text-center py-3">
-          <p className="text-[11px] text-silver-600 italic">
+          <p className="text-[11px] text-accent/70 italic">
             {progress.total - progress.filled} more parameter{progress.total - progress.filled > 1 ? "s" : ""} needed for live preview
           </p>
         </div>

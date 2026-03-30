@@ -82,9 +82,9 @@ export default function LandingPage() {
       <main className="hidden md:flex min-h-screen flex-col bg-surface relative overflow-hidden">
         {/* Ambient glow orbs */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-[-20%] left-[30%] w-[600px] h-[600px] rounded-full bg-accent/[0.04] blur-[120px]" />
-          <div className="absolute bottom-[-10%] right-[20%] w-[400px] h-[400px] rounded-full bg-accent-warm/[0.03] blur-[100px]" />
-          <div className="absolute top-[40%] left-[-10%] w-[300px] h-[300px] rounded-full bg-accent-cool/[0.02] blur-[80px]" />
+          <div className="absolute top-[-20%] left-[30%] w-[600px] h-[600px] rounded-full bg-accent/[0.08] blur-[120px]" />
+          <div className="absolute bottom-[-10%] right-[20%] w-[400px] h-[400px] rounded-full bg-accent-warm/[0.06] blur-[100px]" />
+          <div className="absolute top-[40%] left-[-10%] w-[300px] h-[300px] rounded-full bg-accent-cool/[0.04] blur-[80px]" />
         </div>
 
         {/* Header */}
@@ -108,14 +108,14 @@ export default function LandingPage() {
         {/* Hero */}
         <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8 pb-24">
           <div className="animate-fade-in">
-            <p className="text-center text-[11px] font-medium uppercase tracking-[0.2em] text-accent/60 mb-6">
+            <p className="text-center text-[11px] font-medium uppercase tracking-[0.2em] text-silver-500 mb-6">
               Fermentation Scale-Up Risk Predictor
             </p>
-            <h1 className="max-w-3xl text-center text-5xl font-serif leading-[1.15] text-gradient">
+            <h1 className="max-w-3xl text-center text-5xl font-serif leading-[1.15] text-silver-50">
               See where your fermentation process
               is vulnerable at scale.
             </h1>
-            <p className="mt-8 max-w-2xl mx-auto text-center text-base leading-relaxed text-silver-400">
+            <p className="mt-8 max-w-2xl mx-auto text-center text-base leading-relaxed text-silver-300">
               Enter your lab-scale process parameters. Get a structured
               engineering risk assessment across oxygen transfer, mixing, shear,
               CO&#x2082; accumulation, and heat removal &mdash; with full calculation
@@ -127,13 +127,13 @@ export default function LandingPage() {
           <div className="mt-12 flex flex-col items-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
             <button
               onClick={handleAssessClick}
-              className="btn-primary px-10 py-3.5 text-sm relative z-10"
+              className="btn-primary px-10 py-3.5 text-sm font-medium relative z-10"
             >
               <span className="relative z-10">Assess my process</span>
             </button>
             <Link
               href="/example"
-              className="text-sm text-silver-500 hover:text-accent transition-colors duration-200"
+              className="text-sm text-silver-400 hover:text-silver-200 underline underline-offset-4 decoration-silver-600 hover:decoration-silver-400 transition-colors duration-200"
             >
               See an example assessment
             </Link>
@@ -144,13 +144,13 @@ export default function LandingPage() {
             {RISK_DOMAINS.map((d) => (
               <div
                 key={d.label}
-                className="glass-panel-sm px-4 py-4 flex flex-col items-center text-center gap-2 group hover:border-accent/20 transition-all duration-300"
+                className="glass-panel-sm px-4 py-5 flex flex-col items-center text-center gap-2.5 group hover:border-[var(--btn-primary-border)] transition-all duration-300"
               >
-                <div className="text-silver-500 group-hover:text-accent transition-colors duration-300">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-accent/[0.08] text-silver-300 group-hover:text-silver-100 group-hover:bg-accent/[0.14] transition-all duration-300">
                   {d.icon}
                 </div>
-                <span className="text-xs font-medium text-silver-200">{d.label}</span>
-                <span className="text-[10px] text-silver-600 leading-tight">{d.desc}</span>
+                <span className="text-xs font-semibold text-silver-100">{d.label}</span>
+                <span className="text-[10px] text-silver-400 leading-tight">{d.desc}</span>
               </div>
             ))}
           </div>
@@ -168,7 +168,8 @@ export default function LandingPage() {
         {/* Footer */}
         <footer className="relative z-10 px-10 py-6">
           <div className="glow-line mb-4" />
-          <p className="text-center text-[11px] text-silver-700">
+          <p className="text-center text-[11px] text-silver-500 flex items-center justify-center gap-1.5">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3 h-3 opacity-60"><rect x="3" y="8" width="10" height="6" rx="1.5" /><path d="M5 8V5.5a3 3 0 016 0V8" /></svg>
             Your process data is encrypted in transit and at rest, never shared,
             and deletable on demand.
           </p>

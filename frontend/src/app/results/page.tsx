@@ -156,31 +156,32 @@ export default function ResultsPage() {
           {/* Subtle glow line */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
 
-          <div className="mx-auto mb-5 w-12 h-12 rounded-full border border-accent/20 flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 text-accent">
-              <rect x="3" y="11" width="18" height="11" rx="2" />
-              <path d="M7 11V7a5 5 0 0110 0v4" />
-            </svg>
-          </div>
+          {/* Show composite score as a teaser */}
+          {data && (
+            <div className="mb-5">
+              <span className="text-4xl font-bold text-silver-100">{data.results.composite_score}</span>
+              <p className="text-xs text-risk-critical mt-1 font-medium capitalize">{data.results.composite_label?.replace(/_/g, " ") || "Risk Score"}</p>
+            </div>
+          )}
 
           <h2 className="text-xl font-semibold text-silver-100">
-            Your results are ready
+            Your assessment is complete
           </h2>
-          <p className="mt-3 text-sm text-silver-500 leading-relaxed">
-            Sign in or create an account to view your full risk assessment,
-            save results, and track assessments over time.
+          <p className="mt-3 text-sm text-silver-400 leading-relaxed">
+            Sign in to view the full breakdown across all 5 risk domains,
+            save your results, and generate PDF reports.
           </p>
 
           <button
             onClick={() => setShowAuthModal(true)}
             className="btn-primary mt-6 w-full py-3 text-sm font-medium"
           >
-            <span className="relative z-10">Sign in to view results</span>
+            <span className="relative z-10">Sign in to view full results</span>
           </button>
 
           <button
             onClick={() => router.push("/assess")}
-            className="mt-3 text-sm text-silver-600 hover:text-silver-400 transition-colors"
+            className="mt-3 text-sm text-silver-500 hover:text-silver-300 underline underline-offset-4 decoration-silver-700 hover:decoration-silver-500 transition-colors"
           >
             Go back to inputs
           </button>

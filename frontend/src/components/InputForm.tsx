@@ -716,10 +716,12 @@ export default function InputForm({ onStateChange }: InputFormProps) {
                 onClick={() => goToStep(i)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all duration-200 ${
                   isActive
-                    ? "bg-accent/[0.1] text-accent"
+                    ? "bg-accent/[0.12] text-accent"
                     : isCompleted
                       ? "bg-black/[0.02] dark:bg-white/[0.03] text-silver-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] cursor-pointer"
-                      : "bg-transparent text-silver-600"
+                      : i > currentStep + 1
+                        ? "bg-transparent text-silver-600 opacity-50 cursor-not-allowed"
+                        : "bg-transparent text-silver-500 hover:text-silver-400 cursor-pointer"
                 }`}
                 disabled={i > currentStep + 1}
               >
@@ -1345,17 +1347,25 @@ export default function InputForm({ onStateChange }: InputFormProps) {
 
             <div className="flex items-center gap-3">
               {/* Transparency info */}
-              <span className="text-[11px] text-silver-600 hidden sm:inline">
-                <span className={`font-medium ${
+              <span className="text-[11px] text-silver-600 hidden sm:inline relative group/conf">
+                <span className={`font-medium cursor-help border-b border-dashed ${
                   transparency.confidence === "high_confidence"
-                    ? "text-risk-low"
+                    ? "text-risk-low border-risk-low/30"
                     : transparency.confidence === "reliable"
-                      ? "text-accent"
-                      : "text-risk-moderate"
+                      ? "text-accent border-accent/30"
+                      : "text-risk-moderate border-risk-moderate/30"
                 }`}>
                   {transparency.label}
                 </span>
                 {" "}&middot; {transparency.entered}/{transparency.total} params
+                {/* Tooltip */}
+                <span className="absolute bottom-full left-0 mb-2 w-56 px-3 py-2 rounded-lg text-[10px] leading-relaxed bg-[var(--bg-elevated)] border border-[var(--border-primary)] shadow-lg text-silver-300 opacity-0 pointer-events-none group-hover/conf:opacity-100 transition-opacity duration-200 z-30">
+                  {transparency.confidence === "high_confidence"
+                    ? "All core parameters provided with measured values. Highest reliability."
+                    : transparency.confidence === "reliable"
+                      ? "Core parameters provided. Some values estimated from organism defaults."
+                      : "Preliminary estimate. Provide more measured values to increase confidence."}
+                </span>
               </span>
 
               {isLastStep ? (
