@@ -38,7 +38,9 @@
       "mcp__playwright__browser_evaluate",
       "Bash(rm -f landing-after-dark.png landing-after-light.png landing-v2-dark.png landing-v2-light.png example-after.png)",
       "Bash(rm -rf .playwright-mcp)",
-      "mcp__playwright__browser_snapshot"
+      "mcp__playwright__browser_snapshot",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
