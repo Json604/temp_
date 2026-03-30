@@ -3,13 +3,7 @@ import * as assessmentService from "../services/assessment.service";
 
 export async function getAssessments(req: Request, res: Response) {
   try {
-    const email = (req.query.email as string)?.toLowerCase();
-
-    if (!email) {
-      res.status(400).json({ error: "Missing email" });
-      return;
-    }
-
+    const email = req.user!.email;
     const assessments = await assessmentService.getAssessments(email);
     res.json({ assessments });
   } catch (error: any) {
@@ -21,7 +15,8 @@ export async function getAssessments(req: Request, res: Response) {
 export async function getAssessmentById(req: Request, res: Response) {
   try {
     const id = req.params.id as string;
-    const assessment = await assessmentService.getAssessmentById(id);
+    const email = req.user!.email;
+    const assessment = await assessmentService.getAssessmentById(id, email);
     res.json(assessment);
   } catch (error: any) {
     if (error.status) {
@@ -35,9 +30,10 @@ export async function getAssessmentById(req: Request, res: Response) {
 
 export async function saveAssessment(req: Request, res: Response) {
   try {
-    const { email, inputs, results } = req.body;
+    const email = req.user!.email;
+    const { inputs, results } = req.body;
 
-    if (!email || !inputs || !results) {
+    if (!inputs || !results) {
       res.status(400).json({ error: "Missing fields" });
       return;
     }
@@ -45,7 +41,6 @@ export async function saveAssessment(req: Request, res: Response) {
     const result = await assessmentService.saveAssessment(email, inputs, results);
     res.json(result);
   } catch (error: any) {
-    // Save failed — log silently, do not block the user
     console.error("Failed to save assessment (non-blocking):", error);
     res.json({ id: null });
   }

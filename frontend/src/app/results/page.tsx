@@ -6,7 +6,7 @@ import { getAssessment, setAssessment, type StoredAssessment } from "@/lib/store
 import { runAssessment } from "@/lib/engine";
 import ResultsDashboard from "@/components/ResultsDashboard";
 import EmailGateModal, { STORAGE_KEY } from "@/components/EmailGateModal";
-import { apiUrl } from "@/lib/api";
+import { apiUrl, authHeaders } from "@/lib/api";
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -30,27 +30,22 @@ export default function ResultsPage() {
       const alreadySaved = localStorage.getItem("lemnisca_last_assessment_id");
       if (loggedIn && !alreadySaved) {
         localStorage.setItem("lemnisca_last_assessment_id", "saving");
-        const storedEmail = localStorage.getItem(STORAGE_KEY);
-        if (storedEmail) {
-          fetch(apiUrl("/api/assessments/save"), {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: storedEmail,
-              inputs: memData.inputs,
-              results: memData.results,
-            }),
+        fetch(apiUrl("/api/assessments/save"), {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({
+            inputs: memData.inputs,
+            results: memData.results,
+          }),
+        })
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.id) localStorage.setItem("lemnisca_last_assessment_id", d.id);
           })
-            .then((r) => r.json())
-            .then((d) => {
-              if (d.id) localStorage.setItem("lemnisca_last_assessment_id", d.id);
-            })
-            .catch((err) => {
-              // Clear the flag so it can retry
-              localStorage.removeItem("lemnisca_last_assessment_id");
-              console.error("Failed to save assessment:", err);
-            });
-        }
+          .catch((err) => {
+            localStorage.removeItem("lemnisca_last_assessment_id");
+            console.error("Failed to save assessment:", err);
+          });
       }
       return;
     }
@@ -58,7 +53,7 @@ export default function ResultsPage() {
     // 2. Fall back to DB via last saved assessment ID (page refresh)
     const assessmentId = localStorage.getItem("lemnisca_last_assessment_id");
     if (assessmentId) {
-      fetch(apiUrl(`/api/assessments/${assessmentId}`))
+      fetch(apiUrl(`/api/assessments/${assessmentId}`), { headers: authHeaders() })
         .then((r) => {
           if (!r.ok) throw new Error("Not found");
           return r.json();
@@ -92,26 +87,22 @@ export default function ResultsPage() {
     const alreadySaved = localStorage.getItem("lemnisca_last_assessment_id");
     if (data && !alreadySaved) {
       localStorage.setItem("lemnisca_last_assessment_id", "saving");
-      const storedEmail = localStorage.getItem(STORAGE_KEY);
-      if (storedEmail) {
-        fetch(apiUrl("/api/assessments/save"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: storedEmail,
-            inputs: data.inputs,
-            results: data.results,
-          }),
+      fetch(apiUrl("/api/assessments/save"), {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          inputs: data.inputs,
+          results: data.results,
+        }),
+      })
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.id) localStorage.setItem("lemnisca_last_assessment_id", d.id);
         })
-          .then((r) => r.json())
-          .then((d) => {
-            if (d.id) localStorage.setItem("lemnisca_last_assessment_id", d.id);
-          })
-          .catch((err) => {
-            localStorage.removeItem("lemnisca_last_assessment_id");
-            console.error("Failed to save assessment:", err);
-          });
-      }
+        .catch((err) => {
+          localStorage.removeItem("lemnisca_last_assessment_id");
+          console.error("Failed to save assessment:", err);
+        });
     }
   }, [data]);
 

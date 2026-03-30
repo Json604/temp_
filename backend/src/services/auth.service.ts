@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../config/db";
+import { signToken } from "../middlewares/auth.middleware";
 
 const SALT_ROUNDS = 12;
 
@@ -25,7 +26,9 @@ export async function signup(email: string, password: string) {
     },
   });
 
-  return { id: user.id, email: user.email, company_domain: user.company_domain };
+  const token = signToken({ userId: user.id, email: user.email });
+
+  return { id: user.id, email: user.email, company_domain: user.company_domain, token };
 }
 
 export async function login(email: string, password: string) {
@@ -44,5 +47,7 @@ export async function login(email: string, password: string) {
     throw { status: 401, message: "Incorrect password." };
   }
 
-  return { id: user.id, email: user.email, company_domain: user.company_domain };
+  const token = signToken({ userId: user.id, email: user.email });
+
+  return { id: user.id, email: user.email, company_domain: user.company_domain, token };
 }

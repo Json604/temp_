@@ -8,7 +8,7 @@ import { setAssessment, setFormDraft, clearFormDraft } from "@/lib/store";
 import { runAssessment } from "@/lib/engine";
 import type { ProcessInputs } from "@/lib/types";
 import { INPUT_DEFAULTS } from "@/lib/constants";
-import { apiUrl } from "@/lib/api";
+import { apiUrl, authHeaders, clearToken } from "@/lib/api";
 import type { FormState } from "@/components/InputForm";
 
 const STORAGE_KEY = "lemnisca_work_email";
@@ -182,10 +182,10 @@ export default function DashboardPage() {
     setEmail(stored);
 
     Promise.all([
-      fetch(apiUrl(`/api/user?email=${encodeURIComponent(stored)}`)).then((r) =>
+      fetch(apiUrl("/api/user"), { headers: authHeaders() }).then((r) =>
         r.ok ? r.json() : null
       ),
-      fetch(apiUrl(`/api/assessments?email=${encodeURIComponent(stored)}`)).then((r) =>
+      fetch(apiUrl("/api/assessments"), { headers: authHeaders() }).then((r) =>
         r.ok ? r.json() : { assessments: [] }
       ),
     ])
@@ -246,6 +246,7 @@ export default function DashboardPage() {
   const handleLogout = () => {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem("lemnisca_last_assessment_id");
+    clearToken();
     router.push("/");
   };
 

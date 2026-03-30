@@ -3,13 +3,7 @@ import * as userService from "../services/user.service";
 
 export async function getUser(req: Request, res: Response) {
   try {
-    const email = (req.query.email as string)?.toLowerCase();
-
-    if (!email) {
-      res.status(400).json({ error: "Missing email" });
-      return;
-    }
-
+    const email = req.user!.email;
     const user = await userService.getUser(email);
     res.json(user);
   } catch (error: any) {

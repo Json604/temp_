@@ -15,7 +15,7 @@ export async function getAssessments(email: string) {
   return assessments;
 }
 
-export async function getAssessmentById(id: string) {
+export async function getAssessmentById(id: string, email: string) {
   const assessment = await prisma.assessment.findUnique({
     where: { id },
     select: {
@@ -29,6 +29,10 @@ export async function getAssessmentById(id: string) {
 
   if (!assessment) {
     throw { status: 404, message: "Not found" };
+  }
+
+  if (assessment.user_email !== email.toLowerCase()) {
+    throw { status: 403, message: "Access denied" };
   }
 
   return assessment;

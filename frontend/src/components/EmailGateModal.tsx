@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { validateWorkEmail, extractDomain } from "@/lib/email-validation";
-import { apiUrl } from "@/lib/api";
+import { apiUrl, setToken } from "@/lib/api";
 
 const STORAGE_KEY = "lemnisca_work_email";
 
@@ -60,6 +60,9 @@ export default function EmailGateModal({ onClose, onSuccess }: { onClose: () => 
         }
 
         localStorage.setItem(STORAGE_KEY, email.trim().toLowerCase());
+        if (data.user?.token) {
+          setToken(data.user.token);
+        }
 
         if (onSuccess) {
           onSuccess();
