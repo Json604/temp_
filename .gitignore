@@ -33,5 +33,5 @@ frontend/next-env.d.ts
 .playwright-mcp/
 
 # cache files
-.next
-.vscode
+.next/
+.vscode/
