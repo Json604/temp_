@@ -28,6 +28,22 @@ export async function getAssessmentById(req: Request, res: Response) {
   }
 }
 
+export async function deleteAssessment(req: Request, res: Response) {
+  try {
+    const id = req.params.id as string;
+    const email = req.user!.email;
+    await assessmentService.deleteAssessment(id, email);
+    res.json({ ok: true });
+  } catch (error: any) {
+    if (error.status) {
+      res.status(error.status).json({ error: error.message });
+      return;
+    }
+    console.error("Failed to delete assessment:", error);
+    res.status(500).json({ error: "Internal error" });
+  }
+}
+
 export async function saveAssessment(req: Request, res: Response) {
   try {
     const email = req.user!.email;

@@ -59,3 +59,20 @@ export async function saveAssessment(email: string, inputs: unknown, results: un
 
   return { id: assessment.id };
 }
+
+export async function deleteAssessment(id: string, email: string) {
+  const assessment = await prisma.assessment.findUnique({
+    where: { id },
+    select: { user_email: true },
+  });
+
+  if (!assessment) {
+    throw { status: 404, message: "Not found" };
+  }
+
+  if (assessment.user_email !== email.toLowerCase()) {
+    throw { status: 403, message: "Access denied" };
+  }
+
+  await prisma.assessment.delete({ where: { id } });
+}

@@ -158,6 +158,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `GET` | `/api/assessments` | Bearer | List all assessments for the authenticated user |
 | `GET` | `/api/assessments/:id` | Bearer | Fetch a single assessment (ownership verified) |
 | `POST` | `/api/assessments/save` | Bearer | Save assessment (`{ inputs, results }`) — email derived from token |
+| `DELETE` | `/api/assessments/:id` | Bearer | Delete an assessment (ownership verified) |
 | `GET` | `/api/health` | No | Health check |
 
 ## How the Calculation Engine Works

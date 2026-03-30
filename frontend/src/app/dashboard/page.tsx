@@ -243,6 +243,20 @@ export default function DashboardPage() {
     router.push("/results");
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(apiUrl(`/api/assessments/${id}`), {
+        method: "DELETE",
+        headers: authHeaders(),
+      });
+      if (res.ok) {
+        setAssessments((prev) => prev.filter((a) => a.id !== id));
+      }
+    } catch (err) {
+      console.error("Failed to delete assessment:", err);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem("lemnisca_last_assessment_id");
@@ -363,15 +377,17 @@ export default function DashboardPage() {
                 });
 
                 return (
-                  <button
+                  <div
                     key={a.id}
-                    onClick={() => handleViewAssessment(a)}
-                    className="glass-panel w-full p-5 text-left transition-all duration-200 hover:border-accent/15 group"
+                    className="glass-panel w-full p-5 transition-all duration-200 hover:border-accent/15 group"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-2.5 h-2.5 rounded-full ${getRiskDotColor(highestRisk)}`} />
-                        <div>
+                      <button
+                        onClick={() => handleViewAssessment(a)}
+                        className="flex items-center gap-3 text-left flex-1 min-w-0"
+                      >
+                        <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${getRiskDotColor(highestRisk)}`} />
+                        <div className="min-w-0">
                           <p className="text-sm font-medium text-silver-200 group-hover:text-silver-100 transition-colors">
                             {species} &mdash; {process}
                           </p>
@@ -381,10 +397,9 @@ export default function DashboardPage() {
                             {date}
                           </p>
                         </div>
-                      </div>
+                      </button>
 
-                      {/* Domain risk dots */}
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3 flex-shrink-0">
                         <div className="hidden sm:flex items-center gap-1.5">
                           {(["otr", "mixing", "shear", "co2", "heat"] as const).map((d) => {
                             const score = a.results[d]?.score;
@@ -397,12 +412,26 @@ export default function DashboardPage() {
                             );
                           })}
                         </div>
-                        <svg className="w-4 h-4 text-silver-600 group-hover:text-accent transition-colors" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                          <path d="M6 4l4 4-4 4" />
-                        </svg>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDelete(a.id); }}
+                          className="p-1.5 rounded-lg text-silver-600 hover:text-risk-critical hover:bg-risk-critical/[0.08] transition-colors"
+                          title="Delete assessment"
+                        >
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                            <path d="M2 4h12M5.333 4V2.667a1.333 1.333 0 011.334-1.334h2.666a1.333 1.333 0 011.334 1.334V4M12.667 4v9.333a1.333 1.333 0 01-1.334 1.334H4.667a1.333 1.333 0 01-1.334-1.334V4h9.334z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleViewAssessment(a)}
+                          className="p-1.5"
+                        >
+                          <svg className="w-4 h-4 text-silver-600 group-hover:text-accent transition-colors" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                            <path d="M6 4l4 4-4 4" />
+                          </svg>
+                        </button>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
