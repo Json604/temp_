@@ -36,10 +36,11 @@ This document explains **what happens, where, and how** across the full applicat
 │  ┌────────────┐  ┌─────────────────┐  ┌──────────────┐        │
 │  │ /api/auth  │  │ /api/assessments│  │  /api/user   │        │
 │  └─────┬──────┘  └───────┬─────────┘  └──────┬───────┘        │
-│        │                 │                    │                 │
+│        │           requireAuth middleware      │                │
+│        │          (JWT verification)   requireAuth              │
 │  ┌─────▼──────┐  ┌───────▼─────────┐  ┌──────▼───────┐        │
 │  │auth.service│  │assessment.service│  │ user.service │        │
-│  │  (bcrypt)  │  │    (CRUD)       │  │  (profile)   │        │
+│  │(bcrypt+JWT)│  │  (CRUD+authz)   │  │  (profile)   │        │
 │  └─────┬──────┘  └───────┬─────────┘  └──────┬───────┘        │
 │        │                 │                    │                 │
 │        └─────────────────┴────────────────────┘                │
@@ -67,15 +68,15 @@ This document explains **what happens, where, and how** across the full applicat
 backend/src/
 ├── app.ts                          ← Entry point: creates Express, mounts routes
 ├── config/
-│   ├── env.ts                      ← Reads .env → exports { PORT, DATABASE_URL, FRONTEND_URL }
+│   ├── env.ts                      ← Reads .env → exports { PORT, DATABASE_URL, FRONTEND_URL, JWT_SECRET }
 │   └── db.ts                       ← Creates Prisma client singleton (with PrismaPg adapter)
 ├── controllers/                    ← Request/response handlers (thin — delegate to services)
 │   ├── auth.controller.ts          ← POST /api/auth → signup or login
-│   ├── assessment.controller.ts    ← GET/POST /api/assessments
+│   ├── assessment.controller.ts    ← GET/POST/DELETE /api/assessments
 │   └── user.controller.ts          ← GET /api/user
 ├── services/                       ← Business logic (where the real work happens)
-│   ├── auth.service.ts             ← bcrypt hash/compare, user creation
-│   ├── assessment.service.ts       ← Prisma queries for assessments
+│   ├── auth.service.ts             ← bcrypt hash/compare, user creation, JWT issuance
+│   ├── assessment.service.ts       ← Prisma queries for assessments (ownership-verified)
 │   └── user.service.ts             ← Prisma query for user profile
 ├── routes/                         ← Express Router definitions (URL → controller)
 │   ├── auth.route.ts
@@ -84,6 +85,7 @@ backend/src/
 ├── helpers/
 │   └── email-validation.ts         ← Work-email check (blocks Gmail, Yahoo, etc.)
 └── middlewares/
+    ├── auth.middleware.ts           ← JWT verification (requireAuth) + token signing (signToken)
     └── error.middleware.ts          ← Global error handler
 ```
 
@@ -93,11 +95,14 @@ backend/src/
 HTTP request
   → app.ts (cors, json parsing)
     → routes/*.ts (URL matching)
-      → controllers/*.ts (extract params, call service, send response)
-        → services/*.ts (business logic, Prisma queries)
-          → config/db.ts (Prisma client)
-            → PostgreSQL
+      → auth.middleware.ts (requireAuth — verify JWT, attach req.user)
+        → controllers/*.ts (use req.user.email, call service, send response)
+          → services/*.ts (business logic, Prisma queries, ownership checks)
+            → config/db.ts (Prisma client)
+              → PostgreSQL
 ```
+
+**Note:** `/api/auth` and `/api/health` skip the `requireAuth` middleware. All other routes require a valid `Authorization: Bearer <token>` header.
 
 ---
 
@@ -172,12 +177,14 @@ The `inputs` JSON stores every field the user entered (volumes, RPM, biomass, et
      → Validates email not in BLOCKED_DOMAINS list
      → bcrypt.hash(password, 12)
      → prisma.user.create({ email, password_hash, company_domain })
-     → Returns { ok: true, user: { id, email, company_domain } }
-   → Frontend stores email in localStorage (STORAGE_KEY)
+     → Signs JWT with { userId, email } (7-day expiry)
+     → Returns { ok: true, user: { id, email, company_domain, token } }
+   → Frontend stores email in localStorage + JWT token in localStorage
    → handleAuthSuccess():
-     → POST /api/assessments/save { email, inputs, results }
-       → assessment.controller.ts → assessment.service.ts
-       → Looks up user by email
+     → POST /api/assessments/save { inputs, results }
+       → Authorization: Bearer <token> header
+       → requireAuth middleware verifies JWT, attaches req.user
+       → assessment.controller.ts uses req.user.email (not client input)
        → prisma.assessment.create({ user_email, inputs, results })
        → Returns { id: "<uuid>" }
      → Stores assessment ID in localStorage
@@ -199,8 +206,8 @@ The `inputs` JSON stores every field the user entered (volumes, RPM, biomass, et
    → getAssessment() → found in sessionStorage
    → User IS logged in (localStorage has email)
    → Results shown immediately (no blur)
-   → Background: POST /api/assessments/save
-     → Saves to database
+   → Background: POST /api/assessments/save (with Bearer token)
+     → Server derives email from JWT — saves to database
      → Stores returned assessment ID in localStorage
 ```
 
@@ -222,8 +229,9 @@ The `inputs` JSON stores every field the user entered (volumes, RPM, biomass, et
 ```
 1. User is on /dashboard
    → On mount:
-     → GET /api/user?email=... → user profile + assessment count
-     → GET /api/assessments?email=... → list of all assessments
+     → GET /api/user (Bearer token) → user profile + assessment count
+     → GET /api/assessments (Bearer token) → list of all assessments
+       → requireAuth extracts email from JWT
        → assessment.service.getAssessments(email)
        → prisma.assessment.findMany({ where: { user_email }, orderBy: { created_at: "desc" } })
        → Returns array of { id, inputs, results, created_at }
@@ -253,9 +261,11 @@ The `inputs` JSON stores every field the user entered (volumes, RPM, biomass, et
 2. If sessionStorage is also cleared (e.g. new tab):
    → getAssessment() returns null
    → Falls back to localStorage "lemnisca_last_assessment_id"
-   → GET /api/assessments/:id
+   → GET /api/assessments/:id (Bearer token)
+     → requireAuth verifies JWT
      → assessment.controller.ts → assessment.service.ts
      → prisma.assessment.findUnique({ where: { id } })
+     → Ownership check: assessment.user_email must match req.user.email (403 if not)
      → Returns { id, inputs, results, created_at, user_email }
    → Frontend runs runAssessment(dbRecord.inputs) to rebuild derived params
    → Stores back into sessionStorage for subsequent use
@@ -274,13 +284,14 @@ The `inputs` JSON stores every field the user entered (volumes, RPM, biomass, et
 | Form draft (string state) | `sessionStorage` only | Frontend `InputForm` on submit |
 | Current assessment cache | `sessionStorage` + in-memory | Frontend `store.ts` |
 | Auth state (email) | `localStorage` | Frontend after successful auth |
+| JWT token | `localStorage` | Frontend after successful auth (from server response) |
 | Last assessment ID | `localStorage` | Frontend after save response |
 
 ---
 
 ## 6. API Endpoint Details
 
-### `POST /api/auth`
+### `POST /api/auth` — No auth required
 
 ```
 Body: { email: string, password: string, action: "signup" | "login" }
@@ -291,56 +302,76 @@ signup:
   → Check no existing user with that email
   → bcrypt.hash(password, 12)
   → prisma.user.create()
-  → Return { ok: true, user: { id, email, company_domain } }
+  → Sign JWT with { userId, email } (7-day expiry)
+  → Return { ok: true, user: { id, email, company_domain, token } }
 
 login:
   → Find user by email
   → bcrypt.compare(password, user.password_hash)
-  → Return { ok: true, user: { id, email, company_domain } }
+  → Sign JWT with { userId, email } (7-day expiry)
+  → Return { ok: true, user: { id, email, company_domain, token } }
 
 Errors: 400 (missing fields), 404 (not found), 401 (wrong password), 409 (duplicate)
 ```
 
-### `GET /api/user?email=`
+### `GET /api/user` — Bearer token required
 
 ```
+→ requireAuth extracts email from JWT
 → prisma.user.findUnique() with _count of assessments
 → Return { id, email, company_domain, created_at, assessment_count }
 
-Errors: 400 (missing email), 404 (not found)
+Errors: 401 (missing/invalid token), 404 (not found)
 ```
 
-### `GET /api/assessments?email=`
+### `GET /api/assessments` — Bearer token required
 
 ```
+→ requireAuth extracts email from JWT
 → prisma.assessment.findMany({ user_email, orderBy: created_at desc })
 → Return { assessments: [{ id, inputs, results, created_at }] }
 
-Errors: 400 (missing email)
+Errors: 401 (missing/invalid token)
 ```
 
-### `GET /api/assessments/:id`
+### `GET /api/assessments/:id` — Bearer token required
 
 ```
+→ requireAuth extracts email from JWT
 → prisma.assessment.findUnique({ id })
+→ Ownership check: assessment.user_email === req.user.email (403 if not)
 → Return { id, inputs, results, created_at, user_email }
 
-Errors: 404 (not found)
+Errors: 401 (missing/invalid token), 403 (not your assessment), 404 (not found)
 ```
 
-### `POST /api/assessments/save`
+### `POST /api/assessments/save` — Bearer token required
 
 ```
-Body: { email: string, inputs: object, results: object }
+Body: { inputs: object, results: object }
 
+→ requireAuth extracts email from JWT
 → Look up user by email (must exist)
 → prisma.assessment.create({ user_email, inputs, results })
 → Return { id: "<uuid>" }
 
 Note: On failure, returns { id: null } instead of an error (non-blocking save)
+Errors: 401 (missing/invalid token)
 ```
 
-### `GET /api/health`
+### `DELETE /api/assessments/:id` — Bearer token required
+
+```
+→ requireAuth extracts email from JWT
+→ prisma.assessment.findUnique({ id })
+→ Ownership check: assessment.user_email === req.user.email (403 if not)
+→ prisma.assessment.delete({ id })
+→ Return { ok: true }
+
+Errors: 401 (missing/invalid token), 403 (not your assessment), 404 (not found)
+```
+
+### `GET /api/health` — No auth required
 
 ```
 → Return { status: "ok", timestamp: "..." }
@@ -354,10 +385,11 @@ Note: On failure, returns { id: null } instead of an error (non-blocking save)
 |---------|---------------|
 | **Password storage** | bcrypt with 12 salt rounds |
 | **Email gating** | Personal email providers blocked (90+ domains) |
-| **Auth mechanism** | Email stored in localStorage — no JWT/session tokens |
-| **API auth** | None — endpoints trust the `email` query parameter |
+| **Auth mechanism** | JWT bearer tokens (7-day expiry) signed with `JWT_SECRET` |
+| **API auth** | All data endpoints require valid JWT via `requireAuth` middleware |
+| **Ownership checks** | `getAssessmentById` and `deleteAssessment` verify `user_email === req.user.email` |
+| **Email derivation** | Server extracts email from JWT payload — never trusts client-sent email |
 | **CORS** | Restricted to `FRONTEND_URL` only |
-| **Assessment access** | Assessments fetched by email (no ownership check on `:id` endpoint) |
 | **Transit encryption** | Depends on deployment (HTTPS via reverse proxy / GCP load balancer) |
 | **At-rest encryption** | Depends on database provider (Cloud SQL encrypts by default) |
 
@@ -367,7 +399,8 @@ Note: On failure, returns { id: null } instead of an error (non-blocking save)
 
 ```
 localStorage:
-  "lemnisca_work_email"          → user's email (auth state)
+  "lemnisca_work_email"          → user's email (display purposes)
+  "lemnisca_auth_token"          → JWT bearer token (sent in Authorization header)
   "lemnisca_last_assessment_id"  → UUID of last saved assessment (or "saving")
   "lemnisca-theme"               → "light" | "dark"
 
@@ -380,8 +413,6 @@ sessionStorage:
 
 ## 9. What's NOT in the Backend (Yet)
 
-- **No JWT or session tokens** — auth is email in localStorage
-- **No delete endpoint** — users cannot delete their data via the API
 - **No rate limiting** — endpoints have no throttling
 - **No input validation on backend** — the API trusts whatever JSON the frontend sends for `inputs` and `results`
 - **No admin panel** — no way to view/manage users or assessments outside the database
