@@ -117,10 +117,53 @@ export default function ResultsPage() {
 
   if (!loaded || !data) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-surface">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-6 h-6 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-          <p className="text-silver-500 text-sm">Loading assessment&hellip;</p>
+      <main className="min-h-screen bg-surface">
+        {/* Skeleton top bar */}
+        <div className="border-b px-8 py-4 flex items-center justify-between" style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)" }}>
+          <div className="flex items-center gap-4">
+            <div className="h-5 w-20 rounded bg-[var(--input-bg)] skeleton-shimmer" />
+            <div className="h-4 w-32 rounded bg-[var(--input-bg)] skeleton-shimmer" />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-24 rounded-lg bg-[var(--input-bg)] skeleton-shimmer" />
+            <div className="h-8 w-8 rounded-full bg-[var(--input-bg)] skeleton-shimmer" />
+          </div>
+        </div>
+
+        {/* Skeleton body */}
+        <div className="max-w-5xl mx-auto px-6 py-10 space-y-8">
+          {/* Hero card skeleton */}
+          <div className="glass-panel p-10 flex flex-col items-center gap-6">
+            <div className="w-40 h-40 rounded-full bg-[var(--input-bg)] skeleton-shimmer" />
+            <div className="h-5 w-28 rounded bg-[var(--input-bg)] skeleton-shimmer" />
+            <div className="flex gap-3">
+              <div className="h-6 w-16 rounded-full bg-[var(--input-bg)] skeleton-shimmer" />
+              <div className="h-6 w-20 rounded-full bg-[var(--input-bg)] skeleton-shimmer" />
+              <div className="h-6 w-28 rounded-full bg-[var(--input-bg)] skeleton-shimmer" />
+            </div>
+            <div className="w-full max-w-lg space-y-2 mt-4">
+              <div className="h-4 w-32 rounded bg-[var(--input-bg)] skeleton-shimmer" />
+              <div className="h-4 w-full rounded bg-[var(--input-bg)] skeleton-shimmer" />
+              <div className="h-4 w-3/4 rounded bg-[var(--input-bg)] skeleton-shimmer" />
+            </div>
+          </div>
+
+          {/* Risk domain cards skeleton */}
+          <div className="space-y-2">
+            <div className="h-4 w-28 rounded bg-[var(--input-bg)] skeleton-shimmer" />
+            <div className="grid grid-cols-5 gap-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="glass-panel-sm p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-[var(--input-bg)] skeleton-shimmer" />
+                    <div className="h-3 w-20 rounded bg-[var(--input-bg)] skeleton-shimmer" />
+                  </div>
+                  <div className="h-5 w-14 rounded-full bg-[var(--input-bg)] skeleton-shimmer" />
+                  <div className="h-3 w-24 rounded bg-[var(--input-bg)] skeleton-shimmer" />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </main>
     );
@@ -156,13 +199,17 @@ export default function ResultsPage() {
           {/* Subtle glow line */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
 
-          {/* Show composite score as a teaser */}
-          {data && (
-            <div className="mb-5">
-              <span className="text-4xl font-bold text-silver-100">{data.results.composite_score}</span>
-              <p className="text-xs text-risk-critical mt-1 font-medium capitalize">{data.results.composite_label?.replace(/_/g, " ") || "Risk Score"}</p>
-            </div>
-          )}
+          {/* Show highest risk level as a teaser */}
+          {data && (() => {
+            const scores = [data.results.otr.score, data.results.mixing.score, data.results.shear.score, data.results.co2.score, data.results.heat.score];
+            const order = { low: 0, moderate: 1, high: 2, critical: 3 } as const;
+            const worst = scores.reduce((a, b) => order[a] >= order[b] ? a : b);
+            return (
+              <div className="mb-5">
+                <span className={`risk-badge risk-badge-${worst} !text-sm !px-4 !py-1.5`}>{worst} risk</span>
+              </div>
+            );
+          })()}
 
           <h2 className="text-xl font-semibold text-silver-100">
             Your assessment is complete
@@ -179,12 +226,6 @@ export default function ResultsPage() {
             <span className="relative z-10">Sign in to view full results</span>
           </button>
 
-          <button
-            onClick={() => router.push("/assess")}
-            className="mt-3 text-sm text-silver-500 hover:text-silver-300 underline underline-offset-4 decoration-silver-700 hover:decoration-silver-500 transition-colors"
-          >
-            Go back to inputs
-          </button>
         </div>
       </div>
 

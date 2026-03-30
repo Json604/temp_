@@ -89,26 +89,49 @@ export default function EmailGateModal({ onClose, onSuccess }: { onClose: () => 
 
       {/* Modal */}
       <div
-        className="relative glass-panel w-full max-w-md px-8 py-10 animate-slide-up"
+        className="relative w-full max-w-md rounded-2xl px-8 py-10 animate-slide-up"
+        style={{
+          background: "var(--bg-elevated)",
+          border: "1px solid var(--border-primary)",
+          boxShadow: "0 24px 80px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.15)",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Subtle glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+        {/* Top accent line */}
+        <div
+          className="absolute top-0 left-8 right-8 h-[2px] rounded-full"
+          style={{ background: "linear-gradient(90deg, #b27828, #5bbaa8)" }}
+        />
 
-        <h2 className="text-xl font-semibold text-silver-100">
-          {mode === "signup" ? "Create your account" : "Sign in to continue"}
-        </h2>
-        <p className="mt-2 text-sm text-silver-500">
-          {mode === "signup"
-            ? "Enter your work email and set a password to get started."
-            : "Enter your credentials to access your assessments."}
-        </p>
+        <div className="text-center mb-6">
+          <div
+            className="mx-auto mb-4 w-11 h-11 rounded-xl flex items-center justify-center"
+            style={{ background: "rgba(178, 120, 42, 0.1)" }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b27828" strokeWidth="1.5" className="w-5 h-5">
+              {mode === "signup" ? (
+                <><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></>
+              ) : (
+                <><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></>
+              )}
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold" style={{ color: "var(--text-heading)" }}>
+            {mode === "signup" ? "Create your account" : "Welcome back"}
+          </h2>
+          <p className="mt-2 text-sm" style={{ color: "var(--text-tertiary)" }}>
+            {mode === "signup"
+              ? "Enter your work email and set a password to get started."
+              : "Sign in to access your assessments."}
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
               htmlFor="work-email"
-              className="block text-[11px] font-medium uppercase tracking-[0.1em] text-silver-500 mb-2"
+              className="block text-[11px] font-medium uppercase tracking-[0.1em] mb-2"
+              style={{ color: "var(--text-tertiary)" }}
             >
               Work email address
             </label>
@@ -132,7 +155,8 @@ export default function EmailGateModal({ onClose, onSuccess }: { onClose: () => 
           <div>
             <label
               htmlFor="auth-password"
-              className="block text-[11px] font-medium uppercase tracking-[0.1em] text-silver-500 mb-2"
+              className="block text-[11px] font-medium uppercase tracking-[0.1em] mb-2"
+              style={{ color: "var(--text-tertiary)" }}
             >
               Password
             </label>
@@ -159,15 +183,18 @@ export default function EmailGateModal({ onClose, onSuccess }: { onClose: () => 
           <button
             type="submit"
             disabled={submitting}
-            className="btn-primary w-full py-3 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 text-sm font-medium rounded-xl transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            style={{
+              background: "linear-gradient(135deg, #b27828, #8a5c1e)",
+              color: "#ffffff",
+              boxShadow: "0 4px 16px rgba(178, 120, 40, 0.25)",
+            }}
           >
-            <span className="relative z-10">
-              {submitting
-                ? "Loading\u2026"
-                : mode === "signup"
-                ? "Create Account"
-                : "Sign In"}
-            </span>
+            {submitting
+              ? "Loading\u2026"
+              : mode === "signup"
+              ? "Create Account"
+              : "Sign In"}
           </button>
         </form>
 
@@ -178,11 +205,15 @@ export default function EmailGateModal({ onClose, onSuccess }: { onClose: () => 
               setMode(mode === "login" ? "signup" : "login");
               setError("");
             }}
-            className="text-sm text-silver-500 hover:text-silver-300 transition-colors"
+            className="text-sm transition-colors"
+            style={{ color: "var(--text-tertiary)" }}
           >
             {mode === "login"
-              ? "Don\u2019t have an account? Sign up"
-              : "Already have an account? Sign in"}
+              ? "Don\u2019t have an account? "
+              : "Already have an account? "}
+            <span className="font-medium underline underline-offset-4" style={{ color: "var(--text-secondary)" }}>
+              {mode === "login" ? "Sign up" : "Sign in"}
+            </span>
           </button>
         </div>
       </div>

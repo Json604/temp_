@@ -953,34 +953,43 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
       </div>
 
       {/* Top bar */}
-      <div className="relative z-10 border-b px-6 py-3 flex items-center justify-between" style={{ background: "var(--bar-bg)", backdropFilter: "blur(20px)", borderColor: "var(--bar-border)" }}>
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold text-silver-300">Lemnisca</span>
-          <span className="w-px h-4 bg-black/[0.04] dark:bg-white/[0.06]" />
+      <div
+        className="relative z-10 border-b px-8 py-4 flex items-center justify-between"
+        style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)" }}
+      >
+        {/* Left: Brand + page title */}
+        <div className="flex items-center gap-4">
+          <Link href="/" className="text-base font-bold tracking-tight hover:opacity-80 transition-opacity" style={{ color: "var(--text-heading)" }}>
+            Lemnisca
+          </Link>
           {isExample ? (
-            <h1 className="text-sm text-silver-400">
-              Example Assessment &mdash; <em className="text-silver-200">E.&nbsp;coli</em> fed-batch, 10&nbsp;L &rarr; 10,000&nbsp;L
+            <h1 className="text-sm" style={{ color: "var(--text-tertiary)" }}>
+              Example &mdash; <em style={{ color: "var(--text-secondary)" }}>E.&nbsp;coli</em> fed-batch, 10&nbsp;L &rarr; 10,000&nbsp;L
             </h1>
           ) : (
-            <h1 className="text-sm text-silver-400">Results Dashboard</h1>
+            <h1 className="text-sm" style={{ color: "var(--text-tertiary)" }}>Results</h1>
           )}
         </div>
-        <div className="flex items-center gap-3">
+
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2">
           {onBackClick && (
             <button
               type="button"
               onClick={onBackClick}
-              className="text-sm text-silver-500 hover:text-accent transition-colors flex items-center gap-1"
+              className="text-sm px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all"
+              style={{ color: "var(--text-tertiary)", border: "1px solid var(--border-primary)" }}
             >
-              <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M10 4l-4 4 4 4" />
               </svg>
-              Back to inputs
+              Edit inputs
             </button>
           )}
           <Link
             href="/dashboard"
-            className="text-sm text-silver-500 hover:text-accent transition-colors"
+            className="text-sm px-3 py-1.5 rounded-lg font-medium transition-all"
+            style={{ color: "var(--text-tertiary)", border: "1px solid var(--border-primary)" }}
           >
             Dashboard
           </Link>
@@ -990,7 +999,8 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
 
       {/* Example banner */}
       {isExample && (
-        <div className="relative z-10 border-b border-accent/10 px-6 py-3 text-sm" style={{ background: "var(--accent-glow)", color: "var(--text-secondary)" }}>
+        <div className="relative z-10 border-b border-accent/15 px-6 py-3 text-sm flex items-center gap-2" style={{ background: "var(--accent-glow)", color: "var(--text-secondary)" }}>
+          <span className="inline-flex items-center gap-1.5 risk-badge !bg-accent/10 !text-accent !border-accent/20 !text-[10px] !py-0.5">Example</span>
           This is a pre-loaded example.{" "}
           <Link
             href="/"

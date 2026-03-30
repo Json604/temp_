@@ -92,7 +92,7 @@ export default function LandingPage() {
           <span className="text-xl font-semibold tracking-tight text-silver-100">
             Lemnisca
           </span>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-5">
             {isLoggedIn && (
               <Link
                 href="/dashboard"
@@ -106,16 +106,16 @@ export default function LandingPage() {
         </header>
 
         {/* Hero */}
-        <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8 pb-24">
+        <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8 pb-6">
           <div className="animate-fade-in">
-            <p className="text-center text-[11px] font-medium uppercase tracking-[0.2em] text-silver-500 mb-6">
+            <p className="text-center text-[11px] font-medium uppercase tracking-[0.2em] text-silver-400 mb-6">
               Fermentation Scale-Up Risk Predictor
             </p>
-            <h1 className="max-w-3xl text-center text-5xl font-serif leading-[1.15] text-silver-50">
+            <h1 className="max-w-3xl text-center text-5xl font-serif leading-[1.15] text-[var(--text-heading)]">
               See where your fermentation process
               is vulnerable at scale.
             </h1>
-            <p className="mt-8 max-w-2xl mx-auto text-center text-base leading-relaxed text-silver-300">
+            <p className="mt-5 max-w-2xl mx-auto text-center text-sm leading-relaxed text-[var(--text-secondary)]">
               Enter your lab-scale process parameters. Get a structured
               engineering risk assessment across oxygen transfer, mixing, shear,
               CO&#x2082; accumulation, and heat removal &mdash; with full calculation
@@ -124,12 +124,17 @@ export default function LandingPage() {
           </div>
 
           {/* CTA */}
-          <div className="mt-12 flex flex-col items-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
+          <div className="mt-8 flex flex-col items-center gap-3 animate-slide-up" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
             <button
               onClick={handleAssessClick}
-              className="btn-primary px-10 py-3.5 text-sm font-medium relative z-10"
+              className="px-10 py-3.5 text-sm font-medium relative z-10 rounded-xl transition-all duration-300 hover:-translate-y-0.5"
+              style={{
+                background: "linear-gradient(135deg, #b27828, #8a5c1e)",
+                color: "#ffffff",
+                boxShadow: "0 4px 20px rgba(178, 120, 40, 0.3), 0 2px 8px rgba(0, 0, 0, 0.1)",
+              }}
             >
-              <span className="relative z-10">Assess my process</span>
+              Assess my process
             </button>
             <Link
               href="/example"
@@ -140,17 +145,25 @@ export default function LandingPage() {
           </div>
 
           {/* Domain pills */}
-          <div className="mt-20 grid grid-cols-5 gap-3 max-w-4xl w-full animate-slide-up" style={{ animationDelay: "0.4s", animationFillMode: "both" }}>
+          <div className="mt-10 grid grid-cols-5 gap-3 max-w-4xl w-full animate-slide-up" style={{ animationDelay: "0.4s", animationFillMode: "both" }}>
             {RISK_DOMAINS.map((d) => (
               <div
                 key={d.label}
-                className="glass-panel-sm px-4 py-5 flex flex-col items-center text-center gap-2.5 group hover:border-[var(--btn-primary-border)] transition-all duration-300"
+                className="px-3 py-4 flex flex-col items-center text-center gap-2 group rounded-xl border transition-all duration-300 hover:-translate-y-0.5"
+                style={{
+                  background: "var(--bg-elevated)",
+                  borderColor: "var(--border-primary)",
+                  boxShadow: "var(--glass-shadow-sm)",
+                }}
               >
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-accent/[0.08] text-silver-300 group-hover:text-silver-100 group-hover:bg-accent/[0.14] transition-all duration-300">
+                <div
+                  className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300"
+                  style={{ background: "rgba(178, 120, 42, 0.1)", color: "#b27828" }}
+                >
                   {d.icon}
                 </div>
-                <span className="text-xs font-semibold text-silver-100">{d.label}</span>
-                <span className="text-[10px] text-silver-400 leading-tight">{d.desc}</span>
+                <span className="text-xs font-semibold" style={{ color: "var(--text-heading)" }}>{d.label}</span>
+                <span className="text-[10px] leading-tight" style={{ color: "var(--text-tertiary)" }}>{d.desc}</span>
               </div>
             ))}
           </div>

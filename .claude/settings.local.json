@@ -34,7 +34,10 @@
       "mcp__playwright__browser_fill_form",
       "Bash(find /Users/kartikey/Desktop/work_products/pushkar_scale-up-app-main/src -type f -not -path */node_modules/*)",
       "Bash(find ~/Desktop/your_products/Raptor_backend -maxdepth 3 -type d ! -path */node_modules/* ! -path */.git/* ! -path */.next/*)",
-      "Bash(find ~/Desktop/your_products/Raptor_frontend -maxdepth 3 -type d ! -path */node_modules/* ! -path */.git/* ! -path */.next/*)"
+      "Bash(find ~/Desktop/your_products/Raptor_frontend -maxdepth 3 -type d ! -path */node_modules/* ! -path */.git/* ! -path */.next/*)",
+      "mcp__playwright__browser_evaluate",
+      "Bash(rm -f landing-after-dark.png landing-after-light.png landing-v2-dark.png landing-v2-light.png example-after.png)",
+      "Bash(rm -rf .playwright-mcp)"
     ]
   }
 }
