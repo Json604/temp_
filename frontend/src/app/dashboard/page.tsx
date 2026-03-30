@@ -95,14 +95,14 @@ function DashboardSkeleton() {
       </div>
 
       {/* Top bar skeleton */}
-      <div className="relative z-10 border-b px-6 py-3 flex items-center justify-between" style={{ background: "var(--bar-bg)", backdropFilter: "blur(20px)", borderColor: "var(--bar-border)" }}>
-        <div className="flex items-center gap-3">
-          <SkeletonPulse className="w-16 h-4" />
-          <span className="w-px h-4 bg-black/[0.04] dark:bg-white/[0.06]" />
+      <div className="relative z-10 border-b px-8 py-4 flex items-center justify-between" style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)" }}>
+        <div className="flex items-center gap-4">
+          <SkeletonPulse className="w-16 h-5" />
           <SkeletonPulse className="w-20 h-4" />
         </div>
-        <div className="flex items-center gap-3">
-          <SkeletonPulse className="w-24 h-4" />
+        <div className="flex items-center gap-2">
+          <SkeletonPulse className="w-28 h-8 rounded-lg" />
+          <SkeletonPulse className="w-16 h-8 rounded-lg" />
           <SkeletonPulse className="w-8 h-8 rounded-full" />
         </div>
       </div>
@@ -110,12 +110,9 @@ function DashboardSkeleton() {
       <div className="relative z-10 max-w-4xl mx-auto px-6 py-8 space-y-8">
         {/* Profile card skeleton */}
         <div className="glass-panel p-6">
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <SkeletonPulse className="w-40 h-6" />
-              <SkeletonPulse className="w-52 h-4" />
-            </div>
-            <SkeletonPulse className="w-16 h-4" />
+          <div className="space-y-2">
+            <SkeletonPulse className="w-40 h-6" />
+            <SkeletonPulse className="w-52 h-4" />
           </div>
           <div className="mt-5 flex gap-6">
             <div className="space-y-2">
@@ -230,21 +227,28 @@ export default function DashboardPage() {
       </div>
 
       {/* Top bar */}
-      <div className="relative z-10 border-b px-6 py-3 flex items-center justify-between" style={{ background: "var(--bar-bg)", backdropFilter: "blur(20px)", borderColor: "var(--bar-border)" }}>
-        <div className="flex items-center gap-3">
-          <Link href="/" className="text-sm font-semibold text-silver-300 hover:text-silver-100 transition-colors">
+      <div className="relative z-10 border-b px-8 py-4 flex items-center justify-between" style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)" }}>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="text-base font-bold tracking-tight hover:opacity-80 transition-opacity" style={{ color: "var(--text-heading)" }}>
             Lemnisca
           </Link>
-          <span className="w-px h-4 bg-black/[0.04] dark:bg-white/[0.06]" />
-          <span className="text-sm text-silver-400">Dashboard</span>
+          <span className="text-sm" style={{ color: "var(--text-tertiary)" }}>Dashboard</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Link
             href="/assess"
-            className="text-sm text-accent hover:text-accent-cool transition-colors"
+            className="text-sm px-3 py-1.5 rounded-lg font-medium transition-all"
+            style={{ color: "var(--text-tertiary)", border: "1px solid var(--border-primary)" }}
           >
             New assessment
           </Link>
+          <button
+            onClick={handleLogout}
+            className="text-sm px-3 py-1.5 rounded-lg transition-all"
+            style={{ color: "var(--text-tertiary)", border: "1px solid var(--border-primary)" }}
+          >
+            Sign out
+          </button>
           <ThemeToggle />
         </div>
       </div>
@@ -258,21 +262,13 @@ export default function DashboardPage() {
 
         {/* Profile card */}
         <div className="glass-panel p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-xl font-semibold text-silver-100">
-                {user?.company_domain
-                  ? user.company_domain.charAt(0).toUpperCase() + user.company_domain.slice(1)
-                  : "Your Account"}
-              </h1>
-              <p className="text-sm text-silver-500 mt-1">{email}</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="text-xs text-silver-600 hover:text-risk-critical transition-colors"
-            >
-              Sign out
-            </button>
+          <div>
+            <h1 className="text-xl font-semibold text-silver-100">
+              {user?.company_domain
+                ? user.company_domain.charAt(0).toUpperCase() + user.company_domain.slice(1)
+                : "Your Account"}
+            </h1>
+            <p className="text-sm text-silver-500 mt-1">{email}</p>
           </div>
 
           <div className="mt-5 flex gap-6">
