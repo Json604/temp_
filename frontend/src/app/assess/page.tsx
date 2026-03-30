@@ -28,33 +28,29 @@ export default function AssessPage() {
         <div className="absolute top-1/3 right-0 w-[400px] h-[400px] blur-[100px] rounded-full" style={{ background: "var(--ambient-warm)" }} />
       </div>
 
-      <div className="relative z-10 py-8 px-4">
-        {/* Header */}
-        <div className="max-w-7xl mx-auto mb-6 px-2 flex items-start justify-between">
-          <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.15em] text-accent/50 mb-2">
-              Lemnisca
-            </p>
-            <h1 className="text-xl font-semibold text-silver-100">
-              Scale-Up Risk Assessment
-            </h1>
-            <p className="text-sm text-silver-500 mt-1">
-              Enter your lab-scale fermentation parameters. Your risk profile builds in real time.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            {isLoggedIn && (
-              <Link
-                href="/dashboard"
-                className="text-sm text-silver-500 hover:text-accent transition-colors"
-              >
-                Dashboard
-              </Link>
-            )}
-            <ThemeToggle />
-          </div>
+      {/* Top bar */}
+      <div className="relative z-10 border-b px-8 py-4 flex items-center justify-between" style={{ background: "var(--bg-elevated)", borderColor: "var(--border-primary)" }}>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="text-base font-bold tracking-tight hover:opacity-80 transition-opacity" style={{ color: "var(--text-heading)" }}>
+            Lemnisca
+          </Link>
+          <span className="text-sm" style={{ color: "var(--text-tertiary)" }}>Scale-Up Risk Assessment</span>
         </div>
+        <div className="flex items-center gap-2">
+          {isLoggedIn && (
+            <Link
+              href="/dashboard"
+              className="text-sm px-3 py-1.5 rounded-lg font-medium transition-all"
+              style={{ color: "var(--text-tertiary)", border: "1px solid var(--border-primary)" }}
+            >
+              Dashboard
+            </Link>
+          )}
+          <ThemeToggle />
+        </div>
+      </div>
 
+      <div className="relative z-10 py-8 px-4">
         {/* Split layout: Form (left) + Live Preview (right) */}
         <div className="max-w-7xl mx-auto flex gap-6 items-start">
           {/* Form panel — scrollable */}

@@ -148,6 +148,17 @@ function inferImpellers(hd: number): number {
   return 1;
 }
 
+/** Industry-standard H/D ratios by vessel volume */
+function inferHdFromVolume(volumeL: number): number {
+  if (volumeL > 10000) return 2.8;
+  if (volumeL > 5000) return 2.5;
+  if (volumeL > 1000) return 2.2;
+  if (volumeL > 100) return 1.8;
+  return 1.2;
+}
+
+const SCALE_MULTIPLIERS = [10, 100, 1000] as const;
+
 function getBiomassCdw(
   biomass: number,
   unit: BiomassUnit,
@@ -220,6 +231,18 @@ export default function InputForm({ onStateChange }: InputFormProps) {
             next.temperature = String(INPUT_DEFAULTS.temperature_yeast);
           }
           next.organism_species = "";
+        }
+
+        // Auto-infer H/D target from volume
+        if (key === "v_target") {
+          const vol = parseFloat(value as string);
+          if (!isNaN(vol) && vol > 0) {
+            const inferredHd = inferHdFromVolume(vol);
+            next.h_d_target = String(inferredHd);
+            if (!prev.n_impellers_overridden) {
+              next.n_impellers = String(inferImpellers(inferredHd));
+            }
+          }
         }
 
         if (key === "h_d_target" && !prev.n_impellers_overridden) {
@@ -698,7 +721,15 @@ export default function InputForm({ onStateChange }: InputFormProps) {
   const activeStepDef = steps[currentStep];
 
   if (showAnalyzing) {
-    return <AnalyzingAnimation onComplete={handleAnalyzingComplete} />;
+    return (
+      <AnalyzingAnimation
+        onComplete={handleAnalyzingComplete}
+        hd={parseFloat(form.h_d_target) || 2.0}
+        nImpellers={parseInt(form.n_impellers) || 1}
+        impellerType={form.impeller_type}
+        volume={parseFloat(form.v_target) || undefined}
+      />
+    );
   }
 
   return (
@@ -886,38 +917,71 @@ export default function InputForm({ onStateChange }: InputFormProps) {
             {/* ==================== STEP B ==================== */}
             {activeStepDef.id === "b" && (
               <div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div id="v_lab">
-                    <label className="block text-[11px] font-medium uppercase tracking-[0.08em] text-silver-500 mb-2">
-                      Lab working volume (L)
-                    </label>
-                    <input
-                      type="number"
-                      value={form.v_lab}
-                      onChange={(e) => set("v_lab", e.target.value)}
-                      className={inputCls("v_lab")}
-                      placeholder="e.g. 10"
-                      min={0}
-                      max={1000}
-                      step="any"
-                    />
-                    {fieldError("v_lab")}
-                  </div>
-                  <div id="v_target">
-                    <label className="block text-[11px] font-medium uppercase tracking-[0.08em] text-silver-500 mb-2">
-                      Target working volume (L)
-                    </label>
-                    <input
-                      type="number"
-                      value={form.v_target}
-                      onChange={(e) => set("v_target", e.target.value)}
-                      className={inputCls("v_target")}
-                      placeholder="e.g. 10000"
-                      min={0}
-                      step="any"
-                    />
-                    {fieldError("v_target")}
-                  </div>
+                <div id="v_lab" className="mb-5">
+                  <label className="block text-[11px] font-medium uppercase tracking-[0.08em] text-silver-500 mb-2">
+                    Lab working volume (L)
+                  </label>
+                  <input
+                    type="number"
+                    value={form.v_lab}
+                    onChange={(e) => set("v_lab", e.target.value)}
+                    className={inputCls("v_lab")}
+                    placeholder="e.g. 10"
+                    min={0}
+                    max={1000}
+                    step="any"
+                  />
+                  {fieldError("v_lab")}
+                </div>
+                <div id="v_target">
+                  <label className="block text-[11px] font-medium uppercase tracking-[0.08em] text-silver-500 mb-2">
+                    Target scale
+                  </label>
+                  {(() => {
+                    const labVal = parseFloat(form.v_lab);
+                    const hasLab = !isNaN(labVal) && labVal > 0;
+                    const currentTarget = parseFloat(form.v_target);
+                    const activeMultiplier = hasLab && !isNaN(currentTarget) && currentTarget > 0
+                      ? SCALE_MULTIPLIERS.find((m) => Math.abs(labVal * m - currentTarget) < 0.01)
+                      : undefined;
+                    return (
+                      <div className="flex gap-3">
+                        {SCALE_MULTIPLIERS.map((m) => {
+                          const targetVol = hasLab ? labVal * m : 0;
+                          const isActive = activeMultiplier === m;
+                          return (
+                            <button
+                              key={m}
+                              type="button"
+                              disabled={!hasLab}
+                              onClick={() => set("v_target", String(targetVol))}
+                              className={`flex-1 rounded-xl border px-4 py-3.5 text-center transition-all duration-200 ${
+                                isActive
+                                  ? "border-accent/40 bg-accent/[0.06]"
+                                  : "border-black/[0.06] dark:border-white/[0.06] hover:border-accent/20"
+                              } ${!hasLab ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}`}
+                              style={{ background: isActive ? undefined : "var(--input-bg)" }}
+                            >
+                              <span className={`text-lg font-semibold font-mono ${isActive ? "text-accent" : "text-silver-200"}`}>
+                                {m.toLocaleString()}&times;
+                              </span>
+                              {hasLab && (
+                                <span className="block text-[10px] text-silver-500 mt-1 font-mono">
+                                  {targetVol >= 1000
+                                    ? `${(targetVol / 1000).toLocaleString("en-GB", { maximumFractionDigits: 1 })} m³`
+                                    : `${targetVol.toLocaleString("en-GB")} L`}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+                  {!form.v_lab && (
+                    <p className="text-[10px] text-silver-600 mt-2">Enter lab volume first</p>
+                  )}
+                  {fieldError("v_target")}
                 </div>
                 {scaleRatio !== null && scaleRatio > 0 && (
                   <div className="mt-4 glass-panel-sm px-4 py-3 flex items-center gap-3">
