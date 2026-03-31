@@ -41,7 +41,12 @@
       "mcp__playwright__browser_snapshot",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(grep -E \"\\\\.tsx$\")"
+      "Bash(grep -E \"\\\\.tsx$\")",
+      "Bash(find /Users/kartikey/Desktop/quick_risk_analyzer/backend -not -path */node_modules/* -type f)",
+      "Bash(find /Users/kartikey/Desktop/quick_risk_analyzer/frontend -not -path */node_modules/* -type f -name *.ts -o -name *.tsx)",
+      "Bash(cat /Users/kartikey/Desktop/quick_risk_analyzer/frontend/next.config.*)",
+      "Bash(npm run:*)",
+      "Bash(openssl rand:*)"
     ]
   }
 }
