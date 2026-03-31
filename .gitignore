@@ -24,6 +24,7 @@ npm-debug.log*
 
 # prisma generated
 backend/src/generated
+frontend/src/generated
 
 # typescript
 *.tsbuildinfo
