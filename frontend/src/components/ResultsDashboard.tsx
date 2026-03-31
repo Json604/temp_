@@ -986,13 +986,6 @@ export default function ResultsDashboard({ data, isExample, onBackClick }: Resul
               Edit inputs
             </button>
           )}
-          <Link
-            href="/dashboard"
-            className="text-sm px-3 py-1.5 rounded-lg font-medium transition-all"
-            style={{ color: "var(--text-primary)", border: "1px solid var(--border-primary)" }}
-          >
-            Dashboard
-          </Link>
           <ThemeToggle />
         </div>
       </div>
