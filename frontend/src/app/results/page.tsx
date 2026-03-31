@@ -160,69 +160,11 @@ export default function ResultsPage() {
     );
   }
 
-  // Authenticated — show full results
-  if (isAuthenticated) {
-    return (
-      <ResultsDashboard
-        data={data}
-        onBackClick={() => router.push("/assess")}
-      />
-    );
-  }
-
-  // Not authenticated — show blurred results with CTA overlay
+  // Show full results (no auth gate for demo)
   return (
-    <div className="relative min-h-screen">
-      {/* Blurred results underneath */}
-      <div className="pointer-events-none select-none" style={{ filter: "blur(8px)" }}>
-        <ResultsDashboard
-          data={data}
-          onBackClick={() => {}}
-        />
-      </div>
-
-      {/* Overlay */}
-      <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px]" />
-
-      {/* CTA card */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-        <div className="glass-panel w-full max-w-md px-8 py-10 text-center animate-slide-up">
-          {/* Subtle glow line */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
-
-          {/* Show highest risk level as a teaser */}
-          {data && (() => {
-            const scores = [data.results.otr.score, data.results.mixing.score, data.results.shear.score, data.results.co2.score, data.results.heat.score];
-            const order = { low: 0, moderate: 1, high: 2, critical: 3 } as const;
-            const worst = scores.reduce((a, b) => order[a] >= order[b] ? a : b);
-            return (
-              <div className="mb-5">
-                <span className={`risk-badge risk-badge-${worst} !text-sm !px-4 !py-1.5`}>{worst} risk</span>
-              </div>
-            );
-          })()}
-
-          <h2 className="text-xl font-semibold text-silver-100">
-            Your assessment is complete
-          </h2>
-          <p className="mt-3 text-sm text-silver-400 leading-relaxed">
-            Sign in to view the full breakdown across all 5 risk domains,
-            save your results, and generate PDF reports.
-          </p>
-
-          <button
-            onClick={() => setShowAuthModal(true)}
-            className="btn-primary mt-6 w-full py-3 text-sm font-medium"
-          >
-            <span className="relative z-10">Sign in to view full results</span>
-          </button>
-
-        </div>
-      </div>
-
-      {showAuthModal && (
-        <EmailGateModal onClose={() => setShowAuthModal(false)} onSuccess={handleAuthSuccess} />
-      )}
-    </div>
+    <ResultsDashboard
+      data={data}
+      onBackClick={() => router.push("/assess")}
+    />
   );
 }
